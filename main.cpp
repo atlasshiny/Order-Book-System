@@ -13,10 +13,10 @@ int main() {
 
     while (true) {
         //get user input for order details
-        int id, price;
+        int id, price, quantity;
         string type;
-        cout << "Enter order type (BUY/SELL/HOLD), id, and price: ";
-        cin >> type >> id >> price;
+        cout << "Enter order type (BUY/SELL/HOLD), id, price, and quantity: ";
+        cin >> type >> id >> price >> quantity;
 
         //create an order object based on user input
         OrderType orderType;
