@@ -1,11 +1,11 @@
 #pragma once
-#include <vector>
+#include <deque>
 #include "Order.hpp"
 
 class OrderBook {
 private:
-    std::vector<Order> bidOrders;
-    std::vector<Order> askOrders;
+    std::deque<Order> bidOrders;
+    std::deque<Order> askOrders;
 public:
     void addOrder(const Order& order);
     void matchOrders();

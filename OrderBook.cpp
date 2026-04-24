@@ -40,12 +40,12 @@ void OrderBook::matchOrders() {
         buy.quantity -= tradeQuantity;
         sell.quantity -= tradeQuantity;
 
-        // remove fully filled orders
+        // remove fully filled orders using pop_front() for deques
         if (buy.quantity <= 0) {
-            bidOrders.erase(bidOrders.begin());
+            bidOrders.pop_front();
         }
         if (sell.quantity <= 0) {
-            askOrders.erase(askOrders.begin());
+            askOrders.pop_front();
         }
     }
 }
