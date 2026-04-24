@@ -14,4 +14,5 @@ struct Order {
     OrderType type;
     int id;
     int price;
+    int quantity;
 };
