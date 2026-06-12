@@ -15,8 +15,8 @@ int main() {
         uint64_t current_time;
         string orderTypeStr, directionStr; // Clean separation
         
-        cout << "\nEnter (LIMIT/MARKET) (BUY/SELL) ID Price Qty: ";
-        if (!(cin >> orderTypeStr >> directionStr >> id >> price >> quantity)) {
+        cout << "\nEnter (LIMIT/MARKET) (BUY/SELL) Price Qty: ";
+        if (!(cin >> orderTypeStr >> directionStr >> price >> quantity)) {
             break; // Safely handle stream disruptions
         }
 
