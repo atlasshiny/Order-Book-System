@@ -6,6 +6,36 @@
 
 using namespace std;
 
+void OrderBook::matchAgainstBook(Order& incomingOrder, std::deque<Order>& oppositeBook) {
+    // 1. Ensure the book is sorted by price/time priority before matching
+    // (You can either call your sort logic here or ensure it's sorted before calling this)
+    
+    while (!oppositeBook.empty() && incomingOrder.quantity > 0) {
+        Order& restingOrder = oppositeBook.front();
+
+        // 2. Determine price limit constraints
+        // If it's a BUY order, it can only match if the resting SELL price <= incoming BUY price
+        // If it's a SELL order, it can only match if the resting BUY price >= incoming SELL price
+        if (incomingOrder.direction == OrderDirection::BUY && incomingOrder.price < restingOrder.price) break;
+        if (incomingOrder.direction == OrderDirection::SELL && incomingOrder.price > restingOrder.price) break;
+
+        // 3. Match quantities
+        int tradeQuantity = std::min(incomingOrder.quantity, restingOrder.quantity);
+        
+        // 4. Update quantities
+        incomingOrder.quantity -= tradeQuantity;
+        restingOrder.quantity -= tradeQuantity;
+
+        cout << "Trade Executed: " << tradeQuantity << " shares at $" << restingOrder.price << endl;
+
+        // 5. Cleanup filled orders
+        if (restingOrder.quantity <= 0) {
+            restingOrder.status = OrderStatus::FILLED;
+            oppositeBook.pop_front();
+        }
+    }
+}
+
 void OrderBook::placeLimitOrder(Order& order) {
     order.id = nextOrderId++; // Assign a unique ID to the order
 
@@ -13,6 +43,7 @@ void OrderBook::placeLimitOrder(Order& order) {
         // Add limit buy order to bid side
         bidOrders.push_back(order);
     } else if (order.direction == OrderDirection::SELL) {
+        // Add limit sell order to ask side
         askOrders.push_back(order);
     }
 }
@@ -27,30 +58,9 @@ void OrderBook::placeMarketOrder(Order& order) {
             return a.price < b.price;
         });
 
-        // match market buy order against best available asks
-        while (!askOrders.empty() && order.quantity > 0) {
-            Order& bestAsk = askOrders.front(); // Get the cheapest seller available
+        matchAgainstBook(order, askOrders);
 
-            // Determine how many shares can cross right now
-            int tradeQuantity = std::min(order.quantity, bestAsk.quantity);
-            int tradePrice = bestAsk.price; // Market orders accept the seller's price!
-
-            cout << "Market BUY ID " << order.id 
-                 << " filled " << tradeQuantity << " shares against SELL ID " << bestAsk.id 
-                 << " at execution price $" << tradePrice << endl;
-
-            // Deduct the filled quantities
-            order.quantity -= tradeQuantity;
-            bestAsk.quantity -= tradeQuantity;
-
-            // If the resting limit order is completely filled, remove it
-            if (bestAsk.quantity <= 0) {
-                bestAsk.status = OrderStatus::FILLED;
-                askOrders.pop_front();
-            }
-        }
-
-        // 3. Post-execution report
+        // Post-execution report
         if (order.quantity > 0) {
             cout << "Market BUY ID " << order.id 
                  << " expired unfilled for " << order.quantity 
@@ -64,31 +74,88 @@ void OrderBook::placeMarketOrder(Order& order) {
             return a.price > b.price;
         });
 
-        // Sweep the bid book (matching against resting buyers)
-        while (!bidOrders.empty() && order.quantity > 0) {
-            Order& bestBid = bidOrders.front(); // Get the highest buyer available
+        matchAgainstBook(order, bidOrders);
 
-            int tradeQuantity = std::min(order.quantity, bestBid.quantity);
-            int tradePrice = bestBid.price; // Market orders accept the buyer's price!
-
-            cout << "Market SELL ID " << order.id 
-                 << " filled " << tradeQuantity << " shares against BUY ID " << bestBid.id 
-                 << " at execution price $" << tradePrice << endl;
-
-            order.quantity -= tradeQuantity;
-            bestBid.quantity -= tradeQuantity;
-
-            if (bestBid.quantity <= 0) {
-                bestBid.status = OrderStatus::FILLED;
-                bidOrders.pop_front();
-            }
-        }
-
+        // Post-execution report
         if (order.quantity > 0) {
             cout << "Market SELL ID " << order.id 
                  << " expired unfilled for " << order.quantity 
                  << " shares due to total lack of market liquidity." << endl;
         }
+    }
+}
+
+void OrderBook::placeImmediateOrCancelOrder(Order& order) {
+    // Implementation for Immediate-Or-Cancel (IOC) orders
+    // This function will attempt to fill the order immediately and cancel any unfilled portion
+    // Similar logic to placeMarketOrder but with cancellation of remaining quantity
+
+    order.id = nextOrderId++; // Assign a unique ID to the order
+
+    if (order.direction == OrderDirection::BUY) {
+        if (order.quantity > 0) {
+            // ensure best asks are sorted first (lowest price) for market orders
+            sort(askOrders.begin(), askOrders.end(), [](const Order& a, const Order& b) {
+                if (a.price == b.price) return a.timestamp < b.timestamp;
+                return a.price < b.price;
+            });
+
+            matchAgainstBook(order, askOrders);
+
+            if (order.quantity > 0) {
+                cout << "IOC BUY ID " << order.id 
+                     << " cancelled for remaining " << order.quantity 
+                     << " shares that could not be filled immediately." << endl;
+            }
+        } else {
+            cout << "IOC BUY ID " << order.id 
+                 << " cancelled immediately as it had zero quantity." << endl;
+        }
+    } else if (order.direction == OrderDirection::SELL) {
+        if (order.quantity > 0) {
+            // Ensure the bid book is sorted highest-price-first before sweeping
+            sort(bidOrders.begin(), bidOrders.end(), [](const Order& a, const Order& b) {
+                if (a.price == b.price) return a.timestamp < b.timestamp;
+                return a.price > b.price;
+            });
+
+            matchAgainstBook(order, bidOrders);
+
+            if (order.quantity > 0) {
+                cout << "IOC SELL ID " << order.id 
+                     << " cancelled for remaining " << order.quantity 
+                     << " shares that could not be filled immediately." << endl;
+            }
+        } else {
+            cout << "IOC SELL ID " << order.id 
+                 << " cancelled immediately as it had zero quantity." << endl;
+        }
+    }
+}
+
+void OrderBook::placePostOnlyOrder(Order& order) {
+    // Implementation for Post-Only orders
+    // This function will only add the order to the book if it does not immediately match
+    // If it would match, it should be rejected or cancelled
+
+    order.id = nextOrderId++; // Assign a unique ID to the order
+
+    if (order.direction == OrderDirection::BUY) {
+        if (!askOrders.empty() && order.price >= askOrders.front().price) {
+            cout << "Post-Only BUY ID " << order.id 
+                 << " rejected as it would immediately match with existing SELL orders." << endl;
+            return; // Do not add to book
+        }
+        // Add limit buy order to bid side
+        bidOrders.push_back(order);
+    } else if (order.direction == OrderDirection::SELL) {
+        if (!bidOrders.empty() && order.price <= bidOrders.front().price) {
+            cout << "Post-Only SELL ID " << order.id 
+                 << " rejected as it would immediately match with existing BUY orders." << endl;
+            return; // Do not add to book
+        }
+        // Add limit sell order to ask side
+        askOrders.push_back(order);
     }
 }
 
