@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <iostream>
+#include <map>
+#include <iomanip>
 #include "OrderBook.hpp"
 
 using namespace std;
@@ -162,4 +164,67 @@ void OrderBook::cancelOrder(int orderId) {
     }
 
     cout << "Order ID " << orderId << " not found for cancellation." << endl;
+}
+
+void OrderBook::level1Data() const {
+    if (!bidOrders.empty()) {
+        cout << "Best Bid: $" << bidOrders.front().price << " x " << bidOrders.front().quantity << endl;
+    } else {
+        cout << "Best Bid: N/A" << endl;
+    }
+
+    if (!askOrders.empty()) {
+        cout << "Best Ask: $" << askOrders.front().price << " x " << askOrders.front().quantity << endl;
+    } else {
+        cout << "Best Ask: N/A" << endl;
+    }
+}
+
+void OrderBook::level2Data() const {
+    // 1. Aggregate Bids (Highest Price first)
+    std::map<int, int, std::greater<int>> aggregatedBids;
+    for (const auto& order : bidOrders) {
+        aggregatedBids[order.price] += order.quantity;
+    }
+
+    // 2. Aggregate Asks (Lowest Price first)
+    std::map<int, int, std::less<int>> aggregatedAsks;
+    for (const auto& order : askOrders) {
+        aggregatedAsks[order.price] += order.quantity;
+    }
+
+    // 3. Render a beautiful Side-by-Side Market Depth Dashboard
+    cout << "\n================= LEVEL 2 MARKET DEPTH =================" << endl;
+    cout << left << setw(15) << "BID QUANTITY" << setw(12) << "BID PRICE" 
+         << " | " 
+         << left << setw(12) << "ASK PRICE" << setw(15) << "ASK QUANTITY" << endl;
+    cout << "--------------------------------------------------------" << endl;
+
+    auto bidIt = aggregatedBids.begin();
+    auto askIt = aggregatedAsks.begin();
+
+    // Loop until both books run out of price depth layers
+    while (bidIt != aggregatedBids.end() || askIt != aggregatedAsks.end()) {
+        // Print Bid Column
+        if (bidIt != aggregatedBids.end()) {
+            cout << left << setw(15) << bidIt->second 
+                 << "$" << setw(11) << bidIt->first;
+            ++bidIt;
+        } else {
+            cout << left << setw(15) << "" << setw(12) << ""; // Blank pad
+        }
+
+        cout << " | ";
+
+        // Print Ask Column
+        if (askIt != aggregatedAsks.end()) {
+            cout << "$" << left << setw(11) << askIt->first 
+                 << setw(15) << askIt->second;
+            ++askIt;
+        } else {
+            cout << left << setw(12) << "" << setw(15) << ""; // Blank pad
+        }
+        cout << endl;
+    }
+    cout << "========================================================" << endl;
 }

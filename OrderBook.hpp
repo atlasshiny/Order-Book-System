@@ -12,4 +12,6 @@ public:
     void placeMarketOrder(Order& order);
     void matchOrders();
     void cancelOrder(int orderId);
+    void level1Data() const;
+    void level2Data() const;
 };
