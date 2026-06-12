@@ -11,4 +11,5 @@ public:
     void placeLimitOrder(Order& order);
     void placeMarketOrder(Order& order);
     void matchOrders();
+    void cancelOrder(int orderId);
 };

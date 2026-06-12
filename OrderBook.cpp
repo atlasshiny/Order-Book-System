@@ -139,3 +139,27 @@ void OrderBook::matchOrders() {
         }
     }
 }
+
+void OrderBook::cancelOrder(int orderId) {
+    // Search for the order in bid orders
+    auto bidIt = find_if(bidOrders.begin(), bidOrders.end(), [orderId](const Order& o) {
+        return o.id == orderId;
+    });
+    if (bidIt != bidOrders.end()) {
+        bidIt->status = OrderStatus::CANCELLED;
+        cout << "Cancelled BUY order ID " << orderId << endl;
+        return;
+    }
+
+    // Search for the order in ask orders
+    auto askIt = find_if(askOrders.begin(), askOrders.end(), [orderId](const Order& o) {
+        return o.id == orderId;
+    });
+    if (askIt != askOrders.end()) {
+        askIt->status = OrderStatus::CANCELLED;
+        cout << "Cancelled SELL order ID " << orderId << endl;
+        return;
+    }
+
+    cout << "Order ID " << orderId << " not found for cancellation." << endl;
+}
