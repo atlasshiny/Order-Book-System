@@ -1,42 +1,64 @@
 #include <iostream>
 #include <vector>
+#include <chrono>
+#include <string> // Explicitly include string
 #include "Order.hpp"
 #include "OrderBook.hpp"
 
 using namespace std;
 
-void addHistory(Order& order, vector<Order>& history);
-
 int main() {
-    //create an order book object
     OrderBook orderBook;
 
     while (true) {
-        //get user input for order details
         int id, price, quantity;
-        string type;
-        cout << "Enter order type (BUY/SELL/HOLD), id, price, and quantity: ";
-        cin >> type >> id >> price >> quantity;
-
-        //create an order object based on user input
-        OrderType orderType;
-        if (type == "BUY") {
-            orderType = OrderType::BUY;
-        } else if (type == "SELL") {
-            orderType = OrderType::SELL;
-        } else {
-            orderType = OrderType::HOLD;
+        uint64_t current_time;
+        string orderTypeStr, directionStr; // Clean separation
+        
+        cout << "\nEnter (LIMIT/MARKET) (BUY/SELL) ID Price Qty: ";
+        if (!(cin >> orderTypeStr >> directionStr >> id >> price >> quantity)) {
+            break; // Safely handle stream disruptions
         }
-        Order newOrder{orderType, id, price};
 
-        //add the order to the order book
-        orderBook.addOrder(newOrder);
+        // Determine order type
+        OrderType orderType;
+        if (orderTypeStr == "LIMIT") {
+            orderType = OrderType::LIMIT;
+        } else if (orderTypeStr == "MARKET") {
+            orderType = OrderType::MARKET;
+        } else {
+            cout << "Invalid order type. Please enter LIMIT or MARKET." << endl;
+            continue;
+        }
 
-        //match orders in the order book
+        // Determine order direction
+        OrderDirection direction;
+        if (directionStr == "BUY") {
+            direction = OrderDirection::BUY;
+        } else if (directionStr == "SELL") {
+            direction = OrderDirection::SELL;
+        } else {
+            cout << "Invalid direction. Please enter BUY or SELL." << endl;
+            continue;
+        }
+
+        // Get current time in nanoseconds for time priority
+        current_time = chrono::duration_cast<chrono::nanoseconds>(
+            chrono::high_resolution_clock::now().time_since_epoch()
+        ).count();
+        
+        Order newOrder{orderType, direction, id, price, quantity, current_time};
+
+        // Add the order to the order book
+        if (orderType == OrderType::LIMIT) {
+            orderBook.placeLimitOrder(newOrder);
+            cout << "Limit order placed successfully." << endl;
+        } else if (orderType == OrderType::MARKET) {
+            orderBook.placeMarketOrder(newOrder);
+        }
+
+        // Match existing limit orders in the book
         orderBook.matchOrders();
     }
-}
-
-void addHistory(Order& order, vector<Order>& history) {
-    history.push_back(order);
+    return 0;
 }
