@@ -47,7 +47,7 @@ int main() {
             chrono::high_resolution_clock::now().time_since_epoch()
         ).count();
         
-        Order newOrder{orderType, direction, id, price, quantity, current_time};
+        Order newOrder{orderType, direction, price, quantity, current_time};
 
         // Add the order to the order book
         if (orderType == OrderType::LIMIT) {
@@ -59,6 +59,13 @@ int main() {
 
         // Match existing limit orders in the book
         orderBook.matchOrders();
+
+        // Display Level 1 and Level 2 data after each order
+        cout << "\nLevel 1 Data:" << endl;
+        orderBook.level1Data();
+
+        cout << "\nLevel 2 Data:" << endl;
+        orderBook.level2Data();
     }
     return 0;
 }
