@@ -6,8 +6,9 @@ class OrderBook {
 private:
     std::deque<Order> bidOrders;
     std::deque<Order> askOrders;
+    int nextOrderId = 1;
 public:
-    void placeLimitOrder(const Order& order);
-    void placeMarketOrder(const Order& order);
+    void placeLimitOrder(Order& order);
+    void placeMarketOrder(Order& order);
     void matchOrders();
 };

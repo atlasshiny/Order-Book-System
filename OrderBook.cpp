@@ -4,7 +4,9 @@
 
 using namespace std;
 
-void OrderBook::placeLimitOrder(const Order& order) {
+void OrderBook::placeLimitOrder(Order& order) {
+    order.id = nextOrderId++; // Assign a unique ID to the order
+
     if (order.direction == OrderDirection::BUY) {
         // Add limit buy order to bid side
         bidOrders.push_back(order);
@@ -13,10 +15,10 @@ void OrderBook::placeLimitOrder(const Order& order) {
     }
 }
 
-void OrderBook::placeMarketOrder(const Order& order) {
-    Order marketOrder = order; // Make a copy to modify quantity during matching
+void OrderBook::placeMarketOrder(Order& order) {
+    order.id = nextOrderId++; // Assign a unique ID to the order
 
-    if (marketOrder.direction == OrderDirection::BUY) {
+    if (order.direction == OrderDirection::BUY) {
         // ensure best asks are sorted first (lowest price) for market orders
         sort(askOrders.begin(), askOrders.end(), [](const Order& a, const Order& b) {
             if (a.price == b.price) return a.timestamp < b.timestamp;
@@ -24,19 +26,19 @@ void OrderBook::placeMarketOrder(const Order& order) {
         });
 
         // match market buy order against best available asks
-        while (!askOrders.empty() && marketOrder.quantity > 0) {
+        while (!askOrders.empty() && order.quantity > 0) {
             Order& bestAsk = askOrders.front(); // Get the cheapest seller available
 
             // Determine how many shares can cross right now
-            int tradeQuantity = std::min(marketOrder.quantity, bestAsk.quantity);
+            int tradeQuantity = std::min(order.quantity, bestAsk.quantity);
             int tradePrice = bestAsk.price; // Market orders accept the seller's price!
 
-            cout << "Market BUY ID " << marketOrder.id 
+            cout << "Market BUY ID " << order.id 
                  << " filled " << tradeQuantity << " shares against SELL ID " << bestAsk.id 
                  << " at execution price $" << tradePrice << endl;
 
             // Deduct the filled quantities
-            marketOrder.quantity -= tradeQuantity;
+            order.quantity -= tradeQuantity;
             bestAsk.quantity -= tradeQuantity;
 
             // If the resting limit order is completely filled, remove it
@@ -47,13 +49,13 @@ void OrderBook::placeMarketOrder(const Order& order) {
         }
 
         // 3. Post-execution report
-        if (marketOrder.quantity > 0) {
-            cout << "Market BUY ID " << marketOrder.id 
-                 << " expired unfilled for " << marketOrder.quantity 
+        if (order.quantity > 0) {
+            cout << "Market BUY ID " << order.id 
+                 << " expired unfilled for " << order.quantity 
                  << " shares due to total lack of market liquidity." << endl;
         }
     } 
-    else if (marketOrder.direction == OrderDirection::SELL) {
+    else if (order.direction == OrderDirection::SELL) {
         // Ensure the bid book is sorted highest-price-first before sweeping
         sort(bidOrders.begin(), bidOrders.end(), [](const Order& a, const Order& b) {
             if (a.price == b.price) return a.timestamp < b.timestamp;
@@ -61,17 +63,17 @@ void OrderBook::placeMarketOrder(const Order& order) {
         });
 
         // Sweep the bid book (matching against resting buyers)
-        while (!bidOrders.empty() && marketOrder.quantity > 0) {
+        while (!bidOrders.empty() && order.quantity > 0) {
             Order& bestBid = bidOrders.front(); // Get the highest buyer available
 
-            int tradeQuantity = std::min(marketOrder.quantity, bestBid.quantity);
+            int tradeQuantity = std::min(order.quantity, bestBid.quantity);
             int tradePrice = bestBid.price; // Market orders accept the buyer's price!
 
-            cout << "Market SELL ID " << marketOrder.id 
+            cout << "Market SELL ID " << order.id 
                  << " filled " << tradeQuantity << " shares against BUY ID " << bestBid.id 
                  << " at execution price $" << tradePrice << endl;
 
-            marketOrder.quantity -= tradeQuantity;
+            order.quantity -= tradeQuantity;
             bestBid.quantity -= tradeQuantity;
 
             if (bestBid.quantity <= 0) {
@@ -80,9 +82,9 @@ void OrderBook::placeMarketOrder(const Order& order) {
             }
         }
 
-        if (marketOrder.quantity > 0) {
-            cout << "Market SELL ID " << marketOrder.id 
-                 << " expired unfilled for " << marketOrder.quantity 
+        if (order.quantity > 0) {
+            cout << "Market SELL ID " << order.id 
+                 << " expired unfilled for " << order.quantity 
                  << " shares due to total lack of market liquidity." << endl;
         }
     }
