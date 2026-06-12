@@ -25,9 +25,9 @@ enum OrderType {
 struct Order {
     OrderType type;
     OrderDirection direction;
-    int id;
     int price;
     int quantity;
     uint64_t timestamp; // Time in nanoseconds since order creation, used for time priority in matching
     OrderStatus status = OrderStatus::OPEN; // Default status is OPEN
+    int id;
 };
