@@ -150,6 +150,7 @@ void OrderBook::cancelOrder(int orderId) {
     if (bidIt != bidOrders.end()) {
         bidIt->status = OrderStatus::CANCELLED;
         cout << "Cancelled BUY order ID " << orderId << endl;
+        bidOrders.erase(bidIt);
         return;
     }
 
@@ -160,6 +161,7 @@ void OrderBook::cancelOrder(int orderId) {
     if (askIt != askOrders.end()) {
         askIt->status = OrderStatus::CANCELLED;
         cout << "Cancelled SELL order ID " << orderId << endl;
+        askOrders.erase(askIt);
         return;
     }
 
