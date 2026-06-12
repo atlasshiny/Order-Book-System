@@ -7,6 +7,7 @@ private:
     std::deque<Order> bidOrders;
     std::deque<Order> askOrders;
 public:
-    void addOrder(const Order& order);
+    void placeLimitOrder(const Order& order);
+    void placeMarketOrder(const Order& order);
     void matchOrders();
 };
