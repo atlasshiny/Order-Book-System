@@ -5,7 +5,6 @@
 #include "orderbook/Order.hpp"
 #include "orderbook/OrderBook.hpp"
 
-using namespace std;
 
 int main() {
     OrderBook orderBook;
@@ -13,10 +12,10 @@ int main() {
     while (true) {
         int id, price, quantity;
         uint64_t current_time;
-        string orderTypeStr, directionStr; // Clean separation
-        
-        cout << "\nEnter (LIMIT/MARKET) (BUY/SELL) Price Qty: ";
-        if (!(cin >> orderTypeStr >> directionStr >> price >> quantity)) {
+        std::string orderTypeStr, directionStr; // Clean separation
+
+        std::cout << "\nEnter (LIMIT/MARKET) (BUY/SELL) Price Qty: ";
+        if (!(std::cin >> orderTypeStr >> directionStr >> price >> quantity)) {
             break; // Safely handle stream disruptions
         }
 
@@ -27,7 +26,7 @@ int main() {
         } else if (orderTypeStr == "MARKET") {
             orderType = OrderType::MARKET;
         } else {
-            cout << "Invalid order type. Please enter LIMIT or MARKET." << endl;
+            std::cout << "Invalid order type. Please enter LIMIT or MARKET." << std::endl;
             continue;
         }
 
@@ -38,13 +37,13 @@ int main() {
         } else if (directionStr == "SELL") {
             direction = OrderDirection::SELL;
         } else {
-            cout << "Invalid direction. Please enter BUY or SELL." << endl;
+            std::cout << "Invalid direction. Please enter BUY or SELL." << std::endl;
             continue;
         }
 
         // Get current time in nanoseconds for time priority
-        current_time = chrono::duration_cast<chrono::nanoseconds>(
-            chrono::high_resolution_clock::now().time_since_epoch()
+        current_time = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::high_resolution_clock::now().time_since_epoch()
         ).count();
         
         Order newOrder{orderType, direction, price, quantity, current_time};
@@ -52,7 +51,7 @@ int main() {
         // Add the order to the order book
         if (orderType == OrderType::LIMIT) {
             orderBook.placeLimitOrder(newOrder);
-            cout << "Limit order placed successfully." << endl;
+            std::cout << "Limit order placed successfully." << std::endl;
         } else if (orderType == OrderType::MARKET) {
             orderBook.placeMarketOrder(newOrder);
         }
@@ -61,10 +60,10 @@ int main() {
         orderBook.matchOrders();
 
         // Display Level 1 and Level 2 data after each order
-        cout << "\nLevel 1 Data:" << endl;
+        std::cout << "\nLevel 1 Data:" << std::endl;
         orderBook.level1Data();
 
-        cout << "\nLevel 2 Data:" << endl;
+        std::cout << "\nLevel 2 Data:" << std::endl;
         orderBook.level2Data();
     }
     return 0;
