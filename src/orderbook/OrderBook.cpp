@@ -4,7 +4,6 @@
 #include <iomanip>
 #include "orderbook/OrderBook.hpp"
 
-using namespace std;
 
 void OrderBook::matchAgainstBook(Order& incomingOrder, std::deque<Order>& oppositeBook) {
     // 1. Ensure the book is sorted by price/time priority before matching
@@ -26,7 +25,7 @@ void OrderBook::matchAgainstBook(Order& incomingOrder, std::deque<Order>& opposi
         incomingOrder.quantity -= tradeQuantity;
         restingOrder.quantity -= tradeQuantity;
 
-        cout << "Trade Executed: " << tradeQuantity << " shares at $" << restingOrder.price << endl;
+        std::cout << "Trade Executed: " << tradeQuantity << " shares at $" << restingOrder.price << std::endl;
 
         // 5. Cleanup filled orders
         if (restingOrder.quantity <= 0) {
@@ -62,9 +61,9 @@ void OrderBook::placeMarketOrder(Order& order) {
 
         // Post-execution report
         if (order.quantity > 0) {
-            cout << "Market BUY ID " << order.id 
-                 << " expired unfilled for " << order.quantity 
-                 << " shares due to total lack of market liquidity." << endl;
+            std::cout << "Market BUY ID " << order.id 
+                      << " expired unfilled for " << order.quantity 
+                      << " shares due to total lack of market liquidity." << std::endl;
         }
     } 
     else if (order.direction == OrderDirection::SELL) {
@@ -78,9 +77,9 @@ void OrderBook::placeMarketOrder(Order& order) {
 
         // Post-execution report
         if (order.quantity > 0) {
-            cout << "Market SELL ID " << order.id 
-                 << " expired unfilled for " << order.quantity 
-                 << " shares due to total lack of market liquidity." << endl;
+            std::cout << "Market SELL ID " << order.id 
+                      << " expired unfilled for " << order.quantity 
+                      << " shares due to total lack of market liquidity." << std::endl;
         }
     }
 }
@@ -103,13 +102,13 @@ void OrderBook::placeImmediateOrCancelOrder(Order& order) {
             matchAgainstBook(order, askOrders);
 
             if (order.quantity > 0) {
-                cout << "IOC BUY ID " << order.id 
+                std::cout << "IOC BUY ID " << order.id 
                      << " cancelled for remaining " << order.quantity 
-                     << " shares that could not be filled immediately." << endl;
+                     << " shares that could not be filled immediately." << std::endl;
             }
         } else {
-            cout << "IOC BUY ID " << order.id 
-                 << " cancelled immediately as it had zero quantity." << endl;
+            std::cout << "IOC BUY ID " << order.id 
+                 << " cancelled immediately as it had zero quantity." << std::endl;
         }
     } else if (order.direction == OrderDirection::SELL) {
         if (order.quantity > 0) {
@@ -122,13 +121,13 @@ void OrderBook::placeImmediateOrCancelOrder(Order& order) {
             matchAgainstBook(order, bidOrders);
 
             if (order.quantity > 0) {
-                cout << "IOC SELL ID " << order.id 
+                std::cout << "IOC SELL ID " << order.id 
                      << " cancelled for remaining " << order.quantity 
-                     << " shares that could not be filled immediately." << endl;
+                     << " shares that could not be filled immediately." << std::endl;
             }
         } else {
-            cout << "IOC SELL ID " << order.id 
-                 << " cancelled immediately as it had zero quantity." << endl;
+            std::cout << "IOC SELL ID " << order.id 
+                 << " cancelled immediately as it had zero quantity." << std::endl;
         }
     }
 }
@@ -142,16 +141,16 @@ void OrderBook::placePostOnlyOrder(Order& order) {
 
     if (order.direction == OrderDirection::BUY) {
         if (!askOrders.empty() && order.price >= askOrders.front().price) {
-            cout << "Post-Only BUY ID " << order.id 
-                 << " rejected as it would immediately match with existing SELL orders." << endl;
+            std::cout << "Post-Only BUY ID " << order.id 
+                 << " rejected as it would immediately match with existing SELL orders." << std::endl;
             return; // Do not add to book
         }
         // Add limit buy order to bid side
         bidOrders.push_back(order);
     } else if (order.direction == OrderDirection::SELL) {
         if (!bidOrders.empty() && order.price <= bidOrders.front().price) {
-            cout << "Post-Only SELL ID " << order.id 
-                 << " rejected as it would immediately match with existing BUY orders." << endl;
+            std::cout << "Post-Only SELL ID " << order.id 
+                 << " rejected as it would immediately match with existing BUY orders." << std::endl;
             return; // Do not add to book
         }
         // Add limit sell order to ask side
@@ -185,9 +184,9 @@ void OrderBook::matchOrders() {
         // determine trade price (use midpoint)
         int tradePrice = (buy.price + sell.price) / 2;
 
-        cout << "Matched BUY id " << buy.id
+        std::cout << "Matched BUY id " << buy.id
              << " (price " << buy.price << ", qty " << tradeQuantity << ") with SELL id " << sell.id
-             << " (price " << sell.price << ", qty " << tradeQuantity << ") at trade price " << tradePrice << endl;
+             << " (price " << sell.price << ", qty " << tradeQuantity << ") at trade price " << tradePrice << std::endl;
 
         // deduct executed quantity from both orders
         buy.quantity -= tradeQuantity;
@@ -216,7 +215,7 @@ void OrderBook::cancelOrder(int orderId) {
     });
     if (bidIt != bidOrders.end()) {
         bidIt->status = OrderStatus::CANCELLED;
-        cout << "Cancelled BUY order ID " << orderId << endl;
+        std::cout << "Cancelled BUY order ID " << orderId << std::endl;
         bidOrders.erase(bidIt);
         return;
     }
@@ -227,25 +226,25 @@ void OrderBook::cancelOrder(int orderId) {
     });
     if (askIt != askOrders.end()) {
         askIt->status = OrderStatus::CANCELLED;
-        cout << "Cancelled SELL order ID " << orderId << endl;
+        std::cout << "Cancelled SELL order ID " << orderId << std::endl;
         askOrders.erase(askIt);
         return;
     }
 
-    cout << "Order ID " << orderId << " not found for cancellation." << endl;
+    std::cout << "Order ID " << orderId << " not found for cancellation." << std::endl;
 }
 
 void OrderBook::level1Data() const {
     if (!bidOrders.empty()) {
-        cout << "Best Bid: $" << bidOrders.front().price << " x " << bidOrders.front().quantity << endl;
+        std::cout << "Best Bid: $" << bidOrders.front().price << " x " << bidOrders.front().quantity << std::endl;
     } else {
-        cout << "Best Bid: N/A" << endl;
+        std::cout << "Best Bid: N/A" << std::endl;
     }
 
     if (!askOrders.empty()) {
-        cout << "Best Ask: $" << askOrders.front().price << " x " << askOrders.front().quantity << endl;
+        std::cout << "Best Ask: $" << askOrders.front().price << " x " << askOrders.front().quantity << std::endl;
     } else {
-        cout << "Best Ask: N/A" << endl;
+        std::cout << "Best Ask: N/A" << std::endl;
     }
 }
 
@@ -263,11 +262,11 @@ void OrderBook::level2Data() const {
     }
 
     // 3. Render a beautiful Side-by-Side Market Depth Dashboard
-    cout << "\n================= LEVEL 2 MARKET DEPTH =================" << endl;
-    cout << left << setw(15) << "BID QUANTITY" << setw(12) << "BID PRICE" 
+    std::cout << "\n================= LEVEL 2 MARKET DEPTH =================" << std::endl;
+    std::cout << std::left << std::setw(15) << "BID QUANTITY" << std::setw(12) << "BID PRICE" 
          << " | " 
-         << left << setw(12) << "ASK PRICE" << setw(15) << "ASK QUANTITY" << endl;
-    cout << "--------------------------------------------------------" << endl;
+         << std::left << std::setw(12) << "ASK PRICE" << std::setw(15) << "ASK QUANTITY" << std::endl;
+    std::cout << "--------------------------------------------------------" << std::endl;
 
     auto bidIt = aggregatedBids.begin();
     auto askIt = aggregatedAsks.begin();
@@ -276,24 +275,24 @@ void OrderBook::level2Data() const {
     while (bidIt != aggregatedBids.end() || askIt != aggregatedAsks.end()) {
         // Print Bid Column
         if (bidIt != aggregatedBids.end()) {
-            cout << left << setw(15) << bidIt->second 
-                 << "$" << setw(11) << bidIt->first;
+            std::cout << std::left << std::setw(15) << bidIt->second 
+                      << "$" << std::setw(11) << bidIt->first;
             ++bidIt;
         } else {
-            cout << left << setw(15) << "" << setw(12) << ""; // Blank pad
+            std::cout << std::left << std::setw(15) << "" << std::setw(12) << ""; // Blank pad
         }
 
-        cout << " | ";
+        std::cout << " | ";
 
         // Print Ask Column
         if (askIt != aggregatedAsks.end()) {
-            cout << "$" << left << setw(11) << askIt->first 
-                 << setw(15) << askIt->second;
+            std::cout << "$" << std::left << std::setw(11) << askIt->first 
+                 << std::setw(15) << askIt->second;
             ++askIt;
         } else {
-            cout << left << setw(12) << "" << setw(15) << ""; // Blank pad
+            std::cout << std::left << std::setw(12) << "" << std::setw(15) << ""; // Blank pad
         }
-        cout << endl;
+        std::cout << std::endl;
     }
-    cout << "========================================================" << endl;
+    std::cout << "========================================================" << std::endl;
 }
