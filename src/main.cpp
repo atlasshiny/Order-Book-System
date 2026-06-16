@@ -4,10 +4,11 @@
 #include <string> // Explicitly include string
 #include "orderbook/Order.hpp"
 #include "orderbook/OrderBook.hpp"
-
+#include "risk/SimpleRiskManager.hpp"
 
 int main() {
     OrderBook orderBook;
+    SimpleRiskManager riskManager;
 
     while (true) {
         int id, price, quantity;
@@ -48,6 +49,12 @@ int main() {
         
         Order newOrder{orderType, direction, price, quantity, current_time};
 
+        // Risk check before placing the order
+        if (riskManager.checkOrder(newOrder) == false) {
+            std::cout << "Order rejected by risk manager." << std::endl;
+            continue; // Skip placing the order if it fails risk checks
+        }
+    
         // Add the order to the order book
         if (orderType == OrderType::LIMIT) {
             orderBook.placeLimitOrder(newOrder);
