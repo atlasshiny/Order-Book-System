@@ -3,11 +3,13 @@
 #include <cstdint>
 
 // all special "types" needed for an order
+// order direction (BUY/SELL)
 enum class OrderDirection {
     BUY,
     SELL
 };
 
+// order status (OPEN, PARTIALLY_FILLED, FILLED, CANCELLED)
 enum class OrderStatus {
     OPEN,
     PARTIALLY_FILLED,
@@ -15,9 +17,12 @@ enum class OrderStatus {
     CANCELLED
 };
 
-enum OrderType {
+// order type (LIMIT, MARKET, IOC, POST_ONLY)
+enum class OrderType {
     LIMIT,
-    MARKET
+    MARKET,
+    IOC,
+    POST_ONLY
 };
 
 // the order itself, a structure holding all relevant information
