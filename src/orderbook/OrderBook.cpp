@@ -234,6 +234,8 @@ void OrderBook::cancelOrder(int orderId) {
     std::cout << "Order ID " << orderId << " not found for cancellation." << std::endl;
 }
 
+void OrderBook::onNewOrder(const Order& order) {};
+
 void OrderBook::level1Data() const {
     if (!bidOrders.empty()) {
         std::cout << "Best Bid: $" << bidOrders.front().price << " x " << bidOrders.front().quantity << std::endl;

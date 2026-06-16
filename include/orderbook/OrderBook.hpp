@@ -16,6 +16,7 @@ public:
     void placePostOnlyOrder(Order& order);
     void matchOrders();
     void cancelOrder(int orderId);
+    void onNewOrder(const Order& order);
 
     // Market data retrieval
     void level1Data() const;
