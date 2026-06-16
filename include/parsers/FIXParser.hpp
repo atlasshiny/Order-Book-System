@@ -3,5 +3,5 @@
 
 class FIXParser : public IParser {
     public:
-        Order parse(const std::string& message) override;
+        std::optional<Order> parse(std::string_view rawData) override;
 };

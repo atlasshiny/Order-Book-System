@@ -1,6 +1,6 @@
 #include "parsers/FIXParser.hpp"
 
-Order FIXParser::parse(const std::string& message) {
+std::optional<Order> FIXParser::parse(std::string_view rawData) {
     // Placeholder for actual FIX parsing logic
     return Order(); // Replace with actual Order object creation
-}
+}  
