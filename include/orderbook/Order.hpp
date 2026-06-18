@@ -19,6 +19,7 @@ enum class OrderStatus {
 
 // order type (LIMIT, MARKET, IOC, POST_ONLY)
 enum class OrderType {
+    NONE = 0,
     LIMIT,
     MARKET,
     IOC,
