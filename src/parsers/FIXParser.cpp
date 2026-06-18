@@ -1,5 +1,5 @@
 #include "parsers/FIXParser.hpp"
-#include "parsers/FIXDefinition.hpp"
+#include "gateways/FIXDefinition.hpp"
 #include <charconv>
 
 std::optional<Order> FIXParser::parse(std::string_view rawData) {
