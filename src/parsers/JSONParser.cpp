@@ -1,6 +1,6 @@
 #include "parsers/JSONParser.hpp"
 
-Order JSONParser::parse(const std::string& message) {
+std::optional<Order> JSONParser::parse(std::string_view rawData) {
     // Placeholder for actual JSON parsing logic
     return Order(); // Replace with actual Order object creation
 }
