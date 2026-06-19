@@ -8,6 +8,7 @@ namespace FIX {
         constexpr int BeginString = 8;
         constexpr int BodyLength = 9;
         constexpr int MsgType = 35;
+        constexpr int Checksum = 10;
 
         // common order fields
         constexpr int Symbol = 55;
