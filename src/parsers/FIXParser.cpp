@@ -11,8 +11,19 @@ std::optional<Order> FIXParser::parse(std::string_view rawData) {
         return std::nullopt; // No data to parse
     }
 
-    rawData.remove_prefix(rawData.find_first_not_of(" \t\n\r\f\v")); // Trim leading whitespace
-    rawData.remove_suffix(rawData.find_last_not_of(" \t\n\r\f\v") + 1); // Trim trailing whitespace
+    // Safely trim leading whitespace
+    size_t first_not_ws = rawData.find_first_not_of(" \t\n\r\f\v");
+    if (first_not_ws != std::string_view::npos) {
+        rawData.remove_prefix(first_not_ws);
+    } else {
+        return std::nullopt; // String is entirely whitespace
+    }
+
+    // Safely trim trailing whitespace
+    size_t last_not_ws = rawData.find_last_not_of(" \t\n\r\f\v");
+    if (last_not_ws != std::string_view::npos) {
+        rawData.remove_suffix(rawData.size() - (last_not_ws + 1));
+    }
 
     while (pos < rawData.size()) {
         // Process each chunk of data separated by the SOH delimiter
@@ -68,6 +79,10 @@ std::optional<Order> FIXParser::parse(std::string_view rawData) {
                     }
                     break;
                 }
+
+                default:
+                    // Safely ignore Tag 8, Tag 9, Tag 10, etc., without failing
+                    break;
             }   
         }
     }
