@@ -35,6 +35,11 @@ std::optional<Order> FIXParser::parse(std::string_view rawData) {
         chunk = chunk.substr(0, nextPos); // Get the current chunk
         pos += nextPos + 1; // Move to the next chunk
 
+        // Skip empty chunks caused by the trailing delimiter
+        if (chunk.empty()) {
+            continue; 
+        }
+
         size_t eqPos = chunk.find('='); // Find the position of the '=' character
         if (eqPos == std::string_view::npos) {
             return std::nullopt; // malformed field
