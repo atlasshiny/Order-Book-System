@@ -22,6 +22,7 @@ size_t FIXWriter::write(const Order& order, char* buffer, size_t bufferSize) {
     auto appendStringField = [&](int tag, std::string_view value) {
         auto [p1, ec1] = std::to_chars(ptr, end, tag);
         *p1++ = '=';
+        ptr = p1; 
         std::memcpy(ptr, value.data(), value.size());
         ptr += value.size();
         *ptr++ = '\x01';
