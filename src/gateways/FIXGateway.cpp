@@ -1,1 +1,47 @@
 #include <gateways/FIXGateway.hpp>
+#include <parsers/FIXParser.hpp>
+#include <writers/FIXWriter.hpp>
+#include <iostream>
+
+// Serialize and send an order to the exchange (assumes the order is already built and validated)
+void FIXGateway::sendOrder(const Order& order) {
+    // Serialize the order into FIX format
+    size_t bytesWritten = fixWriter_.write(order, wireBuffer_, sizeof(wireBuffer_));
+        
+    if (bytesWritten == 0) {
+        std::cerr << "Error: FIXWriter failed to serialize the message (buffer too small)." << std::endl;
+        return;
+    }
+
+    // Here you would typically send the wireBuffer_ over a network socket
+    std::cout << "Sending FIX message: ";
+    for (size_t i = 0; i < bytesWritten; ++i) {
+        if (wireBuffer_[i] == '\x01') std::cout << '|';
+        else std::cout << wireBuffer_[i];
+    }
+    std::cout << std::endl;
+}
+
+// Receive and parse an incoming FIX message from the exchange
+void FIXGateway::receiveOrder(const char* rawData, size_t dataSize) {
+    // Parse the incoming FIX message
+    std::string_view rawDataView(rawData, dataSize);
+    auto orderOpt = fixParser_.parse(rawDataView);
+        
+    if (!orderOpt) {
+        std::cerr << "Error: FIXParser failed to parse the incoming message." << std::endl;
+        return;
+    }
+
+    const Order& order = *orderOpt;
+    // Here you would typically process the order (e.g., add it to the order book)
+    std::cout << "Received Order - Type: " << (order.type == OrderType::LIMIT ? "LIMIT" : "MARKET")
+                << ", Direction: " << (order.direction == OrderDirection::BUY ? "BUY" : "SELL")
+                << ", Price: " << order.price
+                << ", Quantity: " << order.quantity
+                << ", Timestamp: " << order.timestamp
+                << ", Status: " << (order.status == OrderStatus::OPEN ? "OPEN" : "CLOSED")
+                << ", ID: " << order.id
+                << std::endl;
+}
+
