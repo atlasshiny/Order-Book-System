@@ -1,4 +1,6 @@
 #include "orderbook/Order.hpp"
+#include <optional>
+#include <string_view>
 
 class IGateway {
     public:
