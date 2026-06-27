@@ -89,10 +89,6 @@ int main() {
 
         // Extract our cleanly deserialized engine order
         Order engineOrder = parsedOrderOpt.value();
-        
-        // Keep the original console input's side/direction since your current 
-        // FIXParser doesn't evaluate Tag 54 (Side) yet.
-        engineOrder.direction = consoleOrder.direction; 
 
         // STEP 3: MATCHING ENGINE EXECUTION
         // Risk check before placing the order
