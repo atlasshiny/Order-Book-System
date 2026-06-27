@@ -1,3 +1,4 @@
+#pragma once
 #include "orderbook/Order.hpp"
 #include <optional>
 #include <string_view>
