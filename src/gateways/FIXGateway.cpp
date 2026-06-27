@@ -4,9 +4,9 @@
 #include <iostream>
 
 // Serialize and send an order to the exchange (assumes the order is already built and validated)
-size_t FIXGateway::sendOrder(const Order& order) {
+size_t FIXGateway::sendOrder(const Order& order, char* wireBuffer_, size_t bufferSize) {
     // Serialize the order into FIX format
-    size_t bytesWritten = fixWriter_.write(order, wireBuffer_, sizeof(wireBuffer_));
+    size_t bytesWritten = fixWriter_.write(order, wireBuffer_, bufferSize);
         
     if (bytesWritten == 0) {
         std::cerr << "Error: FIXWriter failed to serialize the message (buffer too small)." << std::endl;

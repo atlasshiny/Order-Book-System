@@ -8,10 +8,9 @@ class FIXGateway : public IGateway {
 private:
     FIXWriter fixWriter_;
     FIXParser fixParser_;
-    char wireBuffer_[1024]; // temporary buffer for FIX message serialization/deserialization (would eventually be the network socket buffer)
 
 public:
-    size_t sendOrder(const Order& order);
+    size_t sendOrder(const Order& order, char* wireBuffer_, size_t bufferSize);
 
     std::optional<Order> receiveOrder(std::string_view rawData);
 

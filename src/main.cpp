@@ -61,7 +61,7 @@ int main() {
         Order consoleOrder{orderType, direction, price, quantity, current_time};
 
         // STEP 1: FIX WRITER SERIALIZATION (Client Sending Order)
-        size_t bytesWritten = fixGateway.sendOrder(consoleOrder);
+        size_t bytesWritten = fixGateway.sendOrder(consoleOrder, wireBuffer, sizeof(wireBuffer));
         
         if (bytesWritten == 0) {
             std::cout << "Error: FIXWriter failed to serialize the message (buffer too small)." << std::endl;
