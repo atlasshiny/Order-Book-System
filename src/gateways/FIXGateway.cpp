@@ -46,3 +46,13 @@ std::optional<Order> FIXGateway::receiveOrder(std::string_view rawData) {
                 << std::endl;
     return orderOpt;
 }
+
+void FIXGateway::cancelOrder(int orderId) {
+    // Logic to cancel an order by ID (not implemented yet)
+    std::cout << "Canceling order with ID: " << orderId << std::endl;
+}
+
+void FIXGateway::onMarketDataUpdate() {
+    // Logic to handle market data updates (not implemented yet)
+    std::cout << "Market data update received." << std::endl;
+}
