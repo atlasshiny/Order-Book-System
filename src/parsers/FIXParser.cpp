@@ -85,6 +85,24 @@ std::optional<Order> FIXParser::parse(std::string_view rawData) {
                     break;
                 }
 
+                case FIX::Tags::OrdType: {
+                    if (valStr == "1") {
+                        order.type = OrderType::MARKET;
+                    } else if (valStr == "2") {
+                        order.type = OrderType::LIMIT;
+                    }
+                    break;
+                }
+
+                case FIX::Tags::SIDE: {
+                    if (valStr == "1") {
+                        order.direction = OrderDirection::BUY;
+                    } else if (valStr == "2") {
+                        order.direction = OrderDirection::SELL;
+                    }
+                    break;
+                }
+
                 default:
                     // Safely ignore Tag 8, Tag 9, Tag 10, etc., without failing
                     break;

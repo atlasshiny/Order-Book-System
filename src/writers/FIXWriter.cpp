@@ -46,6 +46,18 @@ size_t FIXWriter::write(const Order& order, char* buffer, size_t bufferSize) {
     appendNumericField(FIX::Tags::PRICE, order.price);
     appendNumericField(FIX::Tags::QUANTITY, order.quantity);
 
+    if (order.type == OrderType::LIMIT) {
+        appendNumericField(FIX::Tags::OrdType, 2); // 2 for LIMIT
+    } else if (order.type == OrderType::MARKET) {
+        appendNumericField(FIX::Tags::OrdType, 1); // 1 for MARKET
+    }
+
+    if (order.direction == OrderDirection::BUY) {
+        appendNumericField(FIX::Tags::SIDE, 1); // 1 for BUY
+    } else if (order.direction == OrderDirection::SELL) {
+        appendNumericField(FIX::Tags::SIDE, 2); // 2 for SELL
+    }
+
     // 5. Update BodyLength (Tag 9)
     size_t bodyLen = ptr - bodyStart;
     char temp[4];
