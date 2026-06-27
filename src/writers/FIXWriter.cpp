@@ -45,6 +45,7 @@ size_t FIXWriter::write(const Order& order, char* buffer, size_t bufferSize) {
     // 4. Order fields
     appendNumericField(FIX::Tags::PRICE, order.price);
     appendNumericField(FIX::Tags::QUANTITY, order.quantity);
+    appendNumericField(FIX::Tags::OrderID, order.id);
 
     if (order.type == OrderType::LIMIT) {
         appendNumericField(FIX::Tags::OrdType, 2); // 2 for LIMIT

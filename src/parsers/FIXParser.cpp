@@ -103,6 +103,17 @@ std::optional<Order> FIXParser::parse(std::string_view rawData) {
                     break;
                 }
 
+                case FIX::Tags::OrderID: {
+                    // Use from_chars for the OrderID
+                    int parsedOrderID = 0;
+                    auto res = std::from_chars(valStr.data(), valStr.data() + valStr.size(), parsedOrderID);
+                    
+                    if (res.ec == std::errc()) {
+                        order.id = parsedOrderID;
+                    }
+                    break;
+                }
+
                 default:
                     // Safely ignore Tag 8, Tag 9, Tag 10, etc., without failing
                     break;
