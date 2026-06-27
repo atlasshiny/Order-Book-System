@@ -11,6 +11,7 @@ namespace FIX {
         constexpr int Checksum = 10;
 
         // common order fields
+        constexpr int OrdType = 40;
         constexpr int Symbol = 55;
         constexpr int SIDE = 54;
         constexpr int PRICE = 44;
