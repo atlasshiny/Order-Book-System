@@ -5,24 +5,18 @@
 #include <string_view>
 
 // Include your domain models and protocol components
-#include "orderbook/Order.hpp" // Ensure your path matches your Order/OrderType definitions
+#include "orderbook/Order.hpp" 
 #include "gateways/FIXDefinition.hpp"
-#include "parsers/FIXParser.hpp"
-#include "writers/FIXWriter.hpp"
+#include "gateways/FIXGateway.hpp"
 #include "orderbook/OrderBook.hpp"
 #include "risk/SimpleRiskManager.hpp"
-
-// Assuming your OrderBook and RiskManager headers are structured like this:
-// #include "engine/OrderBook.hpp"
-// #include "risk/SimpleRiskManager.hpp"
 
 int main() {
     OrderBook orderBook;
     SimpleRiskManager riskManager;
     
-    // Instantiate your new FIX protocol components
-    FIXWriter fixWriter;
-    FIXParser fixParser;
+    // Initialize FIX gateway
+    FIXGateway fixGateway;
 
     // Fixed-size stack allocation for your high-performance write buffer
     char wireBuffer[1024];
@@ -67,7 +61,7 @@ int main() {
         Order consoleOrder{orderType, direction, price, quantity, current_time};
 
         // STEP 1: FIX WRITER SERIALIZATION (Client Sending Order)
-        size_t bytesWritten = fixWriter.write(consoleOrder, wireBuffer, sizeof(wireBuffer));
+        size_t bytesWritten = fixGateway.sendOrder(consoleOrder);
         
         if (bytesWritten == 0) {
             std::cout << "Error: FIXWriter failed to serialize the message (buffer too small)." << std::endl;
@@ -86,7 +80,7 @@ int main() {
         std::cout << "\n--------------------------------------" << std::endl;
 
         // STEP 2: FIX PARSER DESERIALIZATION (Exchange Gateway Receiving Order)
-        std::optional<Order> parsedOrderOpt = fixParser.parse(rawWireMsg);
+        std::optional<Order> parsedOrderOpt = fixGateway.receiveOrder(rawWireMsg);
 
         if (!parsedOrderOpt.has_value()) {
             std::cout << "Gateway Error: FIXParser rejected or failed to parse the wire message." << std::endl;

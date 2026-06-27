@@ -4,13 +4,13 @@
 #include <iostream>
 
 // Serialize and send an order to the exchange (assumes the order is already built and validated)
-void FIXGateway::sendOrder(const Order& order) {
+size_t FIXGateway::sendOrder(const Order& order) {
     // Serialize the order into FIX format
     size_t bytesWritten = fixWriter_.write(order, wireBuffer_, sizeof(wireBuffer_));
         
     if (bytesWritten == 0) {
         std::cerr << "Error: FIXWriter failed to serialize the message (buffer too small)." << std::endl;
-        return;
+        return 0;
     }
 
     // Here you would typically send the wireBuffer_ over a network socket
@@ -20,17 +20,18 @@ void FIXGateway::sendOrder(const Order& order) {
         else std::cout << wireBuffer_[i];
     }
     std::cout << std::endl;
+
+    return bytesWritten; // Return the number of bytes written for confirmation
 }
 
 // Receive and parse an incoming FIX message from the exchange
-void FIXGateway::receiveOrder(const char* rawData, size_t dataSize) {
+std::optional<Order> FIXGateway::receiveOrder(std::string_view rawData) {
     // Parse the incoming FIX message
-    std::string_view rawDataView(rawData, dataSize);
-    auto orderOpt = fixParser_.parse(rawDataView);
+    auto orderOpt = fixParser_.parse(rawData);
         
     if (!orderOpt) {
         std::cerr << "Error: FIXParser failed to parse the incoming message." << std::endl;
-        return;
+        return std::nullopt;
     }
 
     const Order& order = *orderOpt;
@@ -43,5 +44,5 @@ void FIXGateway::receiveOrder(const char* rawData, size_t dataSize) {
                 << ", Status: " << (order.status == OrderStatus::OPEN ? "OPEN" : "CLOSED")
                 << ", ID: " << order.id
                 << std::endl;
+    return orderOpt;
 }
-

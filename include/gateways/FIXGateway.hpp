@@ -11,9 +11,9 @@ private:
     char wireBuffer_[1024]; // temporary buffer for FIX message serialization/deserialization (would eventually be the network socket buffer)
 
 public:
-    void sendOrder(const Order& order);
+    size_t sendOrder(const Order& order);
 
-    void receiveOrder(const char* rawData, size_t dataSize);
+    std::optional<Order> receiveOrder(std::string_view rawData);
 
     void cancelOrder(int orderId);
     
