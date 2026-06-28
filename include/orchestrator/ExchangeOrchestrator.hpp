@@ -15,6 +15,9 @@ public:
     // Main execution pipeline entry point
     void processRawMessage(std::string_view rawWireMsg);
 
+    // Output the current state of the order book in console (I/O blocking)
+    void outputOrderBookState() const;
+
 private:
     std::unique_ptr<IGateway> gateway_; // Abstract boundary for protocol decoding
     SimpleRiskManager riskManager_; 
