@@ -1,6 +1,6 @@
-#include <gateways/FIXGateway.hpp>
-#include <parsers/FIXParser.hpp>
-#include <writers/FIXWriter.hpp>
+#include "gateways/FIXGateway.hpp"
+#include "parsers/FIXParser.hpp"
+#include "writers/FIXWriter.hpp"
 #include <iostream>
 
 // Serialize and send an order to the exchange (assumes the order is already built and validated)
@@ -55,4 +55,9 @@ void FIXGateway::cancelOrder(int orderId) {
 void FIXGateway::onMarketDataUpdate() {
     // Logic to handle market data updates (not implemented yet)
     std::cout << "Market data update received." << std::endl;
+}
+
+void FIXGateway::onExecutionReport() {
+    // Logic to handle execution reports (not implemented yet)
+    std::cout << "Execution report received." << std::endl;
 }
