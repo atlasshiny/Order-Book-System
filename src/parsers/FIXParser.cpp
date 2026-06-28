@@ -127,3 +127,26 @@ std::optional<Order> FIXParser::parse(std::string_view rawData) {
 
     return order;
 }
+
+size_t FIXParser::find_message_boundary(std::string_view buffer) {
+    // Check for the presence of the SOH delimiter
+    size_t sohPos = buffer.find('\x01');
+    if (sohPos == std::string_view::npos) {
+        return 0; // No complete message found
+    }
+
+    // Check for the presence of the checksum field (Tag 10)
+    size_t checksumPos = buffer.find(FIX::Tags::Checksum + "=", sohPos);
+    if (checksumPos == std::string_view::npos) {
+        return 0; // No complete message found
+    }
+
+    // Find the end of the checksum field
+    size_t endOfChecksum = buffer.find('\x01', checksumPos);
+    if (endOfChecksum == std::string_view::npos) {
+        return 0; // No complete message found
+    }
+
+    // Return the length of the complete message including the checksum field
+    return endOfChecksum + 1; // +1 to include the SOH delimiter at the end
+}
