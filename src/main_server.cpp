@@ -1,4 +1,5 @@
 #include "network/TCPServer.hpp"
+#include "orchestrator/ExchangeOrchestrator.hpp"
 #include "gateways/FIXGateway.hpp"
 #include <memory>
 #include <iostream>
@@ -9,10 +10,11 @@ int main() {
         std::cout << "[Main] Initializing Order Book Simulator on port " << port << "...\n";
 
         // Create the business logic component
-        auto gateway = std::make_shared<FIXGateway>();
+        auto gateway = std::make_unique<FIXGateway>();
+        auto orchestrator = std::make_shared<ExchangeOrchestrator>(std::move(gateway));
 
         // Start the server (this hooks up the internal io_context acceptor loop)
-        TCPServer server(port, gateway);
+        TCPServer server(port, orchestrator);
 
         // This blocks and keeps the engine alive running your async events!
         server.run();
