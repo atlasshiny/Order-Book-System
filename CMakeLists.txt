@@ -21,15 +21,43 @@ target_include_directories(asio_target INTERFACE
 )
 target_compile_definitions(asio_target INTERFACE ASIO_STANDALONE)
 
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+add_library(EngineCore STATIC
+    src/orderbook/OrderBook.cpp
+    src/parsers/FIXParser.cpp
+    src/parsers/JSONParser.cpp
+    src/writers/FIXWriter.cpp
+    src/risk/RiskManager.cpp
+)
+target_include_directories(EngineCore PRIVATE include)
 
-add_executable(OrderBookSimulator ${SOURCES})
+add_executable(OrderBookConsole 
+    src/main_console.cpp
+    src/network/TCPServer.cpp
+    src/network/TCPSession.cpp
+    src/gateways/FIXGateway.cpp
+    src/orchestrator/ExchangeOrchestrator.cpp
+)
+target_include_directories(OrderBookConsole PRIVATE include)
+target_link_libraries(OrderBookConsole PRIVATE
+    EngineCore
+    asio_target
+    Threads::Threads
+)
 
-target_include_directories(OrderBookSimulator PRIVATE include)
+add_executable(OrderBookServer 
+    src/main_server.cpp
+    src/network/TCPServer.cpp
+    src/network/TCPSession.cpp
+    src/gateways/FIXGateway.cpp
+    src/orchestrator/ExchangeOrchestrator.cpp
+)
+
+target_include_directories(OrderBookServer PRIVATE include)
 
 find_package(Threads REQUIRED)
 
-target_link_libraries(OrderBookSimulator PRIVATE 
+target_link_libraries(OrderBookServer PRIVATE 
+    EngineCore
     asio_target 
     Threads::Threads
 )
