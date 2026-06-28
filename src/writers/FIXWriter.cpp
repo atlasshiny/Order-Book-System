@@ -78,3 +78,88 @@ size_t FIXWriter::write(const Order& order, char* buffer, size_t bufferSize) {
 
     return (ptr - buffer); // Total bytes written to buffer
 }
+
+size_t FIXWriter::writeExecutionReport(const Order& order, std::string_view execType, std::string_view ordStatus, char* buffer, size_t bufferSize) {
+    char* ptr = buffer;
+    char* end = buffer + bufferSize;
+    char* bodyStart = nullptr;
+
+    // Helper for NUMERIC types
+    auto appendNumericField = [&](int tag, auto value) {
+        auto [p1, ec1] = std::to_chars(ptr, end, tag);
+        *p1++ = '=';
+        auto [p2, ec2] = std::to_chars(p1, end, value);
+        *p2++ = '\x01';
+        ptr = p2;
+    };
+
+    // Helper for STRING types
+    auto appendStringField = [&](int tag, std::string_view value) {
+        auto [p1, ec1] = std::to_chars(ptr, end, tag);
+        *p1++ = '=';
+        ptr = p1; 
+        std::memcpy(ptr, value.data(), value.size());
+        ptr += value.size();
+        *ptr++ = '\x01';
+    };
+
+    // Write BeginString (Tag 8)
+    appendStringField(FIX::Tags::BeginString, "FIX.4.2");
+
+    // Placeholder for BodyLength (Tag 9) - ALWAYS assume 3 digits padded for predictability
+    char* bodyLenPos = ptr;
+    const char* placeholder = "9=000\x01";
+    std::memcpy(ptr, placeholder, 6);
+    ptr += 6;
+    bodyStart = ptr; 
+
+    // MsgType (Tag 35 = 8 for Execution Report)
+    appendStringField(FIX::Tags::MsgType, "8"); 
+
+    // Exchange Core Execution Lifecycle Hooks (Mandatory)
+    appendNumericField(FIX::Tags::OrderID, order.id);                  // OrderID (Engine sequence)
+    appendStringField(FIX::Tags::ExecType, execType);                 // ExecType (e.g., "0"=New, "F"=Fill)
+    appendStringField(FIX::Tags::OrdStatus, ordStatus);                  // OrdStatus (e.g., "0"=New, "2"=Filled)
+
+    // Order fields
+    appendNumericField(FIX::Tags::PRICE, order.price);
+    appendNumericField(FIX::Tags::QUANTITY, order.quantity);
+    appendNumericField(FIX::Tags::ClOrdID, order.clientID);
+    appendNumericField(FIX::Tags::TIMESTAMP, order.timestamp);
+
+    if (order.type == OrderType::LIMIT) {
+        appendNumericField(FIX::Tags::OrdType, 2); 
+    } else if (order.type == OrderType::MARKET) {
+        appendNumericField(FIX::Tags::OrdType, 1); 
+    }
+
+    if (order.direction == OrderDirection::BUY) {
+        appendNumericField(FIX::Tags::SIDE, 1); 
+    } else if (order.direction == OrderDirection::SELL) {
+        appendNumericField(FIX::Tags::SIDE, 2); 
+    }
+
+    // Update BodyLength (Tag 9) accurately using to_chars layout padding
+    size_t bodyLen = ptr - bodyStart;
+    if (bodyLen <= 999) {
+        // Zero pad manually if the size is small to maintain the 3-char format block
+        if (bodyLen < 10) {
+            std::to_chars(bodyLenPos + 4, bodyLenPos + 5, static_cast<int>(bodyLen));
+        } else if (bodyLen < 100) {
+            std::to_chars(bodyLenPos + 3, bodyLenPos + 5, static_cast<int>(bodyLen));
+        } else {
+            std::to_chars(bodyLenPos + 2, bodyLenPos + 5, static_cast<int>(bodyLen));
+        }
+    }
+
+    // 6. Calculate Checksum (Tag 10)
+    uint8_t checksum = 0;
+    for (char* p = buffer; p < ptr; ++p) {
+        checksum += static_cast<uint8_t>(*p);
+    }
+
+    // 7. Append Checksum (Tag 10)
+    appendNumericField(FIX::Tags::Checksum, checksum % 256);
+
+    return (ptr - buffer); // Total bytes written to buffer
+}
