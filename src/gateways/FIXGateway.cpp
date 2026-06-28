@@ -52,9 +52,17 @@ void FIXGateway::cancelOrder(int orderId) {
     std::cout << "Canceling order with ID: " << orderId << std::endl;
 }
 
-void FIXGateway::onMarketDataUpdate() {
-    // Logic to handle market data updates (not implemented yet)
-    std::cout << "Market data update received." << std::endl;
+std::optional<Order> FIXGateway::on_data_received(std::shared_ptr<TCPSession> session, std::string_view raw_data) {
+    // Handle incoming data from the network
+    auto orderOpt = receiveOrder(raw_data);
+    if (orderOpt) {
+        // Process the order using fix_writer 
+        std::cout << "Order processed successfully." << std::endl;
+        return orderOpt;
+    } else {
+        std::cerr << "Failed to process incoming data." << std::endl;
+        return std::nullopt; // Indicate failure to process the data
+    }
 }
 
 void FIXGateway::onExecutionReport() {

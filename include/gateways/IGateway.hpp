@@ -11,7 +11,7 @@ class IGateway {
         virtual ~IGateway() = default;
 
         // Called by TCPSession when raw bytes arrive over the wire
-        virtual void on_data_received(std::shared_ptr<TCPSession> session, std::string_view raw_data) = 0;
+        virtual std::optional<Order> on_data_received(std::shared_ptr<TCPSession> session, std::string_view raw_data) = 0;
 
         // Called by TCPSession when a connection drops or initiates
         virtual void on_client_connect(std::shared_ptr<TCPSession> session) = 0;

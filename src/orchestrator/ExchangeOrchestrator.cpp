@@ -4,7 +4,7 @@
 void ExchangeOrchestrator::processRawMessage(std::string_view rawWireMsg) {
         
     // Use the chosen protocol gateway to parse the wire bytes
-    std::optional<Order> parsedOrderOpt = gateway_->receiveOrder(rawWireMsg);
+    std::optional<Order> parsedOrderOpt = gateway_->on_data_received(nullptr, rawWireMsg);
     if (!parsedOrderOpt.has_value()) {
         std::cout << "Gateway Error: FIXParser rejected or failed to parse the wire message." << std::endl;
         return; // Parser rejected or malformed data
