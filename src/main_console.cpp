@@ -80,8 +80,15 @@ int main() {
         }
         std::cout << "\n--------------------------------------" << std::endl;
 
+        std::optional<Order> parsedOrderOpt = engine.on_data_received(nullptr, rawWireMsg); // Simulate receiving the message in the orchestrator
+        if (!parsedOrderOpt.has_value()) {
+            std::cout << "Error: Failed to parse the wire message." << std::endl;
+            continue;
+        }
+        Order parsedOrder = parsedOrderOpt.value();
+
         // STEP 2: ORCHESTRATOR PROCESSING (Server Receiving Order)
-        engine.processRawMessage(rawWireMsg);
+        engine.processOrder(parsedOrder);
 
         engine.outputOrderBookState();
     }
