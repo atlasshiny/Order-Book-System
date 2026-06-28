@@ -114,6 +114,28 @@ std::optional<Order> FIXParser::parse(std::string_view rawData) {
                     break;
                 }
 
+                case FIX::Tags::TIMESTAMP: {
+                    // Use from_chars for the timestamp
+                    uint64_t parsedTimestamp = 0;
+                    auto res = std::from_chars(valStr.data(), valStr.data() + valStr.size(), parsedTimestamp);
+                    
+                    if (res.ec == std::errc()) {
+                        order.timestamp = parsedTimestamp;
+                    }
+                    break;
+                }
+
+                case FIX::Tags::ClOrdID: {
+                    // Use from_chars for the client ID
+                    int parsedClientID = 0;
+                    auto res = std::from_chars(valStr.data(), valStr.data() + valStr.size(), parsedClientID);
+                    
+                    if (res.ec == std::errc()) {
+                        order.clientID = parsedClientID;
+                    }
+                    break;
+                }
+
                 default:
                     // Safely ignore Tag 8, Tag 9, Tag 10, etc., without failing
                     break;
@@ -121,7 +143,7 @@ std::optional<Order> FIXParser::parse(std::string_view rawData) {
         }
     }
 
-    if (order.type == OrderType::NONE || order.price <= 0 || order.quantity <= 0) {
+    if (order.type == OrderType::NONE || order.price <= 0 || order.quantity <= 0 || order.timestamp == 0) {
         return std::nullopt; // The message was incomplete or invalid
     }
 
