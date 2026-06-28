@@ -34,6 +34,7 @@ struct Order {
     int price;
     int quantity;
     uint64_t timestamp; // Time in nanoseconds since order creation, used for time priority in matching
+    int clientID;
     OrderStatus status = OrderStatus::OPEN; // Default status is OPEN
-    int id;
+    int id; // Unique order ID assigned by the matching engine
 };
