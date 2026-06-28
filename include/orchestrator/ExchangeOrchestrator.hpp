@@ -17,13 +17,12 @@ public:
     void on_client_connect(std::shared_ptr<TCPSession> session);
     void on_client_disconnect(std::shared_ptr<TCPSession> session);
 
-    // Main execution pipeline entry point
-    void processOrder(Order& order);
-
     // Output the current state of the order book in console (I/O blocking)
     void outputOrderBookState() const;
 
 private:
+    void processOrder(std::shared_ptr<TCPSession> session, Order& order);
+
     std::unique_ptr<IGateway> gateway_; // Abstract boundary for protocol decoding
     RiskManager riskManager_; 
     OrderBook orderBook_; 
