@@ -11,6 +11,7 @@ namespace FIX {
         constexpr int Checksum = 10;
 
         // common order fields
+        constexpr int ClOrdID = 11;
         constexpr int OrderID = 37;
         constexpr int OrdType = 40;
         constexpr int Symbol = 55;
