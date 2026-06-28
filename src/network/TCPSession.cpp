@@ -1,0 +1,78 @@
+#include "network/TCPSession.hpp"
+#include <asio.hpp>
+#include <iostream>
+
+TCPSession::TCPSession(asio::ip::tcp::socket socket, std::shared_ptr<IGateway> gateway)
+    : socket_(std::move(socket)), gateway_(std::move(gateway)) {}
+
+void TCPSession::start() {
+    // Notify the gateway that a new client has connected
+    if (gateway_) {
+        gateway_->on_client_connect(shared_from_this());
+    }
+
+    // Start reading data from the client
+    do_read();
+}
+
+void TCPSession::write(const std::string& data) {
+    bool write_in_progress = !pending_writes_.empty();
+    pending_writes_.push_back(data);
+    if (!write_in_progress) {
+        do_write();
+    }
+}
+
+void TCPSession::close() {
+    std::error_code ec;
+    socket_.close(ec);
+
+    // Notify the gateway that the client has disconnected
+    if (gateway_) {
+        gateway_->on_client_disconnect(shared_from_this());
+    }
+}
+
+void TCPSession::do_read() {
+    auto self(shared_from_this()); // Keep the session alive during the async operation
+
+    socket_.async_read_some(asio::buffer(buffer_),
+        [this, self](std::error_code ec, std::size_t length) {
+            if (!ec) {
+                // Process the received data into a string_view and pass it to the gateway
+                std::string_view raw_data(buffer_.data(), length);
+                if (gateway_) {
+                    auto order = gateway_->on_data_received(self, raw_data);
+                    if (order) {
+                        // Handle the order as needed
+                    }
+                }
+
+                // Continue reading data
+                do_read();
+            } else {
+                // Handle error or disconnection
+                close();
+            }
+        });
+}
+
+void TCPSession::do_write() {
+    auto self(shared_from_this()); // Keep the session alive during the async operation
+
+    asio::async_write(socket_, asio::buffer(pending_writes_.front()),
+        [this, self](std::error_code ec, std::size_t /*length*/) {
+            if (!ec) {
+                pending_writes_.erase(pending_writes_.begin());
+
+                // If there are more messages waiting in the queue, write the next one
+                if (!pending_writes_.empty()) {
+                    do_write();
+                }
+            } else {
+                // Handle error or disconnection
+                close();
+            }
+        });
+
+}
