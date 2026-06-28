@@ -18,7 +18,7 @@ public:
     void on_client_disconnect(std::shared_ptr<TCPSession> session);
 
     // Main execution pipeline entry point
-    void processRawMessage(std::string_view rawWireMsg);
+    void processOrder(Order& order);
 
     // Output the current state of the order book in console (I/O blocking)
     void outputOrderBookState() const;
