@@ -2,7 +2,10 @@
 #include "orderbook/Order.hpp"
 #include <optional>
 #include <string_view>
-#include "network/TCPSession.hpp"
+#include <memory>
+
+class TCPSession; // Forward declaration
+
 class IGateway {
     public:
         virtual ~IGateway() = default;
