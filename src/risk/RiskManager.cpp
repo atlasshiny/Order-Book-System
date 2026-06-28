@@ -1,7 +1,7 @@
 #include <iostream>
-#include "risk/SimpleRiskManager.hpp"
+#include "risk/RiskManager.hpp"
 
-bool SimpleRiskManager::checkOrder(const Order& order) {
+bool RiskManager::checkOrder(const Order& order) {
     // Implement basic risk checks here
 
     if (order.quantity > MAX_ORDER_QUANTITY) {
