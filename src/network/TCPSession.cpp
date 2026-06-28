@@ -44,7 +44,7 @@ void TCPSession::do_read() {
                 if (orchestrator_) {
                     auto order = orchestrator_->on_data_received(self, raw_data);
                     if (order) {
-                        // Handle the order as needed
+                        orchestrator_->processOrder(order.value());
                     }
                 }
 
