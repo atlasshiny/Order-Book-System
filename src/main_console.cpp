@@ -23,12 +23,12 @@ int main() {
     char wireBuffer[1024];
 
     while (true) {
-        int price, quantity;
+        int price, quantity, clientID;
         uint64_t current_time;
         std::string orderTypeStr, directionStr;
 
-        std::cout << "\nEnter (LIMIT/MARKET) (BUY/SELL) Price Qty (or Ctrl+C to exit): ";
-        if (!(std::cin >> orderTypeStr >> directionStr >> price >> quantity)) {
+        std::cout << "\nEnter (LIMIT/MARKET) (BUY/SELL) Price Qty ClientID (or Ctrl+C to exit): ";
+        if (!(std::cin >> orderTypeStr >> directionStr >> price >> quantity >> clientID)) {
             break; 
         }
 
@@ -57,9 +57,9 @@ int main() {
         current_time = std::chrono::duration_cast<std::chrono::nanoseconds>(
             std::chrono::high_resolution_clock::now().time_since_epoch()
         ).count();
-        
+
         // Create our local order template representing a client message
-        Order consoleOrder{orderType, direction, price, quantity, current_time};
+        Order consoleOrder{orderType, direction, price, quantity, current_time, clientID};
 
         // STEP 1: FIX WRITER SERIALIZATION (Client Sending Order)
         size_t bytesWritten = fixWriter.write(consoleOrder, wireBuffer, sizeof(wireBuffer));
