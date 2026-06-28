@@ -1,7 +1,7 @@
 #include "orchestrator/ExchangeOrchestrator.hpp"
 #include <iostream>
 
-void ExchangeOrchestrator::processOrder(Order& order) {
+void ExchangeOrchestrator::processOrder(std::shared_ptr<TCPSession> session, Order& order) {
     // Run high-speed concrete pre-trade risk checks
     if (!riskManager_.checkOrder(order)) {
         std::cout << "Order rejected by risk manager." << std::endl; // I/O blocking
@@ -18,10 +18,19 @@ void ExchangeOrchestrator::processOrder(Order& order) {
     }
 
     orderBook_.matchOrders();
+
+    // Output the current state of the order book for debugging purposes
+    outputOrderBookState(); // I/O blocking
 };
 
 std::optional<Order> ExchangeOrchestrator::on_data_received(std::shared_ptr<TCPSession> session, std::string_view raw_data) {
-    return gateway_->on_data_received(session, raw_data);
+    std::optional<Order> order = gateway_->on_data_received(session, raw_data);
+
+    if (order) {
+        processOrder(session, order.value());
+    }
+
+    return order;
 }
 
 void ExchangeOrchestrator::on_client_connect(std::shared_ptr<TCPSession> session) {

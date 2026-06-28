@@ -86,11 +86,6 @@ int main() {
             continue;
         }
         Order parsedOrder = parsedOrderOpt.value();
-
-        // STEP 2: ORCHESTRATOR PROCESSING (Server Receiving Order)
-        engine.processOrder(parsedOrder);
-
-        engine.outputOrderBookState();
     }
     return 0;
 }

@@ -42,10 +42,7 @@ void TCPSession::do_read() {
                 // Process the received data into a string_view and pass it to the orchestrator
                 std::string_view raw_data(buffer_.data(), length);
                 if (orchestrator_) {
-                    auto order = orchestrator_->on_data_received(self, raw_data);
-                    if (order) {
-                        orchestrator_->processOrder(order.value());
-                    }
+                    orchestrator_->on_data_received(self, raw_data);
                 }
 
                 // Continue reading data
