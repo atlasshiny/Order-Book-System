@@ -8,17 +8,14 @@
 #include "orderbook/Order.hpp" 
 #include "gateways/FIXDefinition.hpp"
 #include "gateways/FIXGateway.hpp"
-#include "orderbook/OrderBook.hpp"
-#include "risk/SimpleRiskManager.hpp"
+#include "orchestrator/ExchangeOrchestrator.hpp"
 
 int main() {
-    OrderBook orderBook;
-    SimpleRiskManager riskManager;
-    
-    // Initialize FIX gateway
+    // Instantiate the FIX gateway and orchestrator
     FIXGateway fixGateway;
+    ExchangeOrchestrator engine(std::make_unique<FIXGateway>(fixGateway));
 
-    // Fixed-size stack allocation for your high-performance write buffer
+    // Fixed-size stack allocation for the high-performance write buffer
     char wireBuffer[1024];
 
     while (true) {
@@ -79,42 +76,10 @@ int main() {
         }
         std::cout << "\n--------------------------------------" << std::endl;
 
-        // STEP 2: FIX PARSER DESERIALIZATION (Exchange Gateway Receiving Order)
-        std::optional<Order> parsedOrderOpt = fixGateway.receiveOrder(rawWireMsg);
+        // STEP 2: ORCHESTRATOR PROCESSING (Server Receiving Order)
+        engine.processRawMessage(rawWireMsg);
 
-        if (!parsedOrderOpt.has_value()) {
-            std::cout << "Gateway Error: FIXParser rejected or failed to parse the wire message." << std::endl;
-            continue;
-        }
-
-        // Extract our cleanly deserialized engine order
-        Order engineOrder = parsedOrderOpt.value();
-
-        // STEP 3: MATCHING ENGINE EXECUTION
-        // Risk check before placing the order
-        if (riskManager.checkOrder(engineOrder) == false) {
-            std::cout << "Order rejected by risk manager." << std::endl;
-            continue; 
-        }
-    
-        // Add the order to the order book
-        if (engineOrder.type == OrderType::LIMIT) {
-            orderBook.placeLimitOrder(engineOrder);
-            std::cout << "Limit order parsed and placed successfully." << std::endl;
-        } else if (engineOrder.type == OrderType::MARKET) {
-            orderBook.placeMarketOrder(engineOrder);
-            std::cout << "Market order parsed and executed successfully." << std::endl;
-        }
-
-        // Match existing limit orders in the book
-        orderBook.matchOrders();
-
-        // Display Level 1 and Level 2 data after each order
-        std::cout << "\nLevel 1 Data:" << std::endl;
-        orderBook.level1Data();
-
-        std::cout << "\nLevel 2 Data:" << std::endl;
-        orderBook.level2Data();
+        engine.outputOrderBookState();
     }
     return 0;
 }
