@@ -65,7 +65,10 @@ std::optional<Order> FIXGateway::on_data_received(std::shared_ptr<TCPSession> se
     }
 }
 
-void FIXGateway::onExecutionReport() {
-    // Logic to handle execution reports (not implemented yet)
-    std::cout << "Execution report received." << std::endl;
+void FIXGateway::on_client_connect(std::shared_ptr<TCPSession> session) {
+    std::cout << "Client connected: " << std::endl;
+}
+
+void FIXGateway::on_client_disconnect(std::shared_ptr<TCPSession> session) {
+    std::cout << "Client disconnected: " << std::endl;
 }
