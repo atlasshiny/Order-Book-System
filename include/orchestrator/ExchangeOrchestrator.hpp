@@ -1,6 +1,6 @@
 #pragma once
 #include "orderbook/OrderBook.hpp"
-#include "risk/SimpleRiskManager.hpp"
+#include "risk/RiskManager.hpp"
 #include "gateways/IGateway.hpp"
 #include "orderbook/Order.hpp" 
 #include "gateways/FIXDefinition.hpp"
@@ -20,6 +20,6 @@ public:
 
 private:
     std::unique_ptr<IGateway> gateway_; // Abstract boundary for protocol decoding
-    SimpleRiskManager riskManager_; 
+    RiskManager riskManager_; 
     OrderBook orderBook_; 
 };
