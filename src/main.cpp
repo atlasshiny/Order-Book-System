@@ -8,12 +8,16 @@
 #include "orderbook/Order.hpp" 
 #include "gateways/FIXDefinition.hpp"
 #include "gateways/FIXGateway.hpp"
+#include "writers/FIXWriter.hpp"
 #include "orchestrator/ExchangeOrchestrator.hpp"
 
 int main() {
     // Instantiate the FIX gateway and orchestrator
     FIXGateway fixGateway;
     ExchangeOrchestrator engine(std::make_unique<FIXGateway>(fixGateway));
+
+    // Instantiate the FIX "client" writer for serialization
+    FIXWriter fixWriter;
 
     // Fixed-size stack allocation for the high-performance write buffer
     char wireBuffer[1024];
@@ -58,7 +62,7 @@ int main() {
         Order consoleOrder{orderType, direction, price, quantity, current_time};
 
         // STEP 1: FIX WRITER SERIALIZATION (Client Sending Order)
-        size_t bytesWritten = fixGateway.sendOrder(consoleOrder, wireBuffer, sizeof(wireBuffer));
+        size_t bytesWritten = fixWriter.write(consoleOrder, wireBuffer, sizeof(wireBuffer));
         
         if (bytesWritten == 0) {
             std::cout << "Error: FIXWriter failed to serialize the message (buffer too small)." << std::endl;
