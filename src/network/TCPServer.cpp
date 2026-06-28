@@ -1,9 +1,9 @@
 #include "network/TCPServer.hpp"
 
-TCPServer::TCPServer(unsigned short port, std::shared_ptr<IGateway> gateway)
+TCPServer::TCPServer(unsigned short port, std::shared_ptr<ExchangeOrchestrator> orchestrator)
     : io_context_(),
       acceptor_(io_context_, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
-      gateway_(std::move(gateway)) {
+      orchestrator_(std::move(orchestrator)) {
     doAccept();
 }
 
@@ -19,7 +19,7 @@ void TCPServer::doAccept() {
                           << socket.remote_endpoint() << std::endl;
                 
                 // Instantiate a standalone session container to manage this client's lifetime
-                std::make_shared<TCPSession>(std::move(socket), gateway_)->start();
+                std::make_shared<TCPSession>(std::move(socket), orchestrator_)->start();
             }
             
             // Keep the loop primed for additional clients

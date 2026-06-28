@@ -2,13 +2,13 @@
 #include <asio.hpp>
 #include <iostream>
 
-TCPSession::TCPSession(asio::ip::tcp::socket socket, std::shared_ptr<IGateway> gateway)
-    : socket_(std::move(socket)), gateway_(std::move(gateway)) {}
+TCPSession::TCPSession(asio::ip::tcp::socket socket, std::shared_ptr<ExchangeOrchestrator> orchestrator)
+    : socket_(std::move(socket)), orchestrator_(std::move(orchestrator)) {}
 
 void TCPSession::start() {
-    // Notify the gateway that a new client has connected
-    if (gateway_) {
-        gateway_->on_client_connect(shared_from_this());
+    // Notify the orchestrator that a new client has connected
+    if (orchestrator_) {
+        orchestrator_->on_client_connect(shared_from_this());
     }
 
     // Start reading data from the client
@@ -27,9 +27,9 @@ void TCPSession::close() {
     std::error_code ec;
     socket_.close(ec);
 
-    // Notify the gateway that the client has disconnected
-    if (gateway_) {
-        gateway_->on_client_disconnect(shared_from_this());
+    // Notify the orchestrator that the client has disconnected
+    if (orchestrator_) {
+        orchestrator_->on_client_disconnect(shared_from_this());
     }
 }
 
@@ -39,10 +39,10 @@ void TCPSession::do_read() {
     socket_.async_read_some(asio::buffer(buffer_),
         [this, self](std::error_code ec, std::size_t length) {
             if (!ec) {
-                // Process the received data into a string_view and pass it to the gateway
+                // Process the received data into a string_view and pass it to the orchestrator
                 std::string_view raw_data(buffer_.data(), length);
-                if (gateway_) {
-                    auto order = gateway_->on_data_received(self, raw_data);
+                if (orchestrator_) {
+                    auto order = orchestrator_->on_data_received(self, raw_data);
                     if (order) {
                         // Handle the order as needed
                     }

@@ -30,6 +30,18 @@ void ExchangeOrchestrator::processRawMessage(std::string_view rawWireMsg) {
     orderBook_.matchOrders();
 };
 
+std::optional<Order> ExchangeOrchestrator::on_data_received(std::shared_ptr<TCPSession> session, std::string_view raw_data) {
+    return gateway_->on_data_received(session, raw_data);
+}
+
+void ExchangeOrchestrator::on_client_connect(std::shared_ptr<TCPSession> session) {
+    gateway_->on_client_connect(session);
+}
+
+void ExchangeOrchestrator::on_client_disconnect(std::shared_ptr<TCPSession> session) {
+    gateway_->on_client_disconnect(session);
+}
+
 void ExchangeOrchestrator::outputOrderBookState() const {
         std::cout << "\nLevel 1 Data:" << std::endl;
         orderBook_.level1Data();
