@@ -56,9 +56,10 @@ void ExchangeOrchestrator::on_order_accepted(const Order& order) {
     }
     // create string_views for ExecType and OrdStatus
     std::string_view execTypeView(&FIX::ExecTypes::New, 1);
+    std::string_view ordStatusView(&FIX::OrdStatuses::New, 1);
 
     size_t bytes = gateway_->get_writer().writeExecutionReport(
-        order, execTypeView, currentSession_->get_buffer_ptr(), currentSession_->get_buffer_size()
+        order, execTypeView, ordStatusView, currentSession_->get_buffer_ptr(), currentSession_->get_buffer_size()
     );
 
     if (bytes > 0) {
@@ -71,10 +72,19 @@ void ExchangeOrchestrator::on_order_executed(const Order& order, int price, int 
         return; // return if no session is set (like in console mode)
     }
 
+    char currentStatus;
+
+    if (order.quantity == 0) {
+        currentStatus = FIX::OrdStatuses::Filled;
+    } else {
+        currentStatus = FIX::OrdStatuses::PartiallyFilled;
+    }
+
     std::string_view execTypeView(&FIX::ExecTypes::Trade, 1);
+    std::string_view ordStatusView(&currentStatus, 1);
 
     size_t bytes = gateway_->get_writer().writeExecutionReport(
-        order, execTypeView, currentSession_->get_buffer_ptr(), currentSession_->get_buffer_size()
+        order, execTypeView, ordStatusView, currentSession_->get_buffer_ptr(), currentSession_->get_buffer_size()
     );
 
     if (bytes > 0) {
