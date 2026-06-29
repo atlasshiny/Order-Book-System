@@ -12,6 +12,7 @@ public:
     void on_client_disconnect(std::shared_ptr<TCPSession> session) override;
 
     FIXWriter& get_writer();
+    FIXParser& get_parser() { return fixParser_; }
 
 private:
     FIXWriter fixWriter_;
