@@ -1,7 +1,11 @@
 #include "orchestrator/ExchangeOrchestrator.hpp"
+#include "network/TCPSession.hpp"
 #include <iostream>
 
 void ExchangeOrchestrator::processOrder(std::shared_ptr<TCPSession> session, Order& order) {
+    // set the current session for the incoming order
+    currentSession_ = session;
+    
     // Run high-speed concrete pre-trade risk checks
     if (!riskManager_.checkOrder(order)) {
         std::cout << "Order rejected by risk manager." << std::endl; // I/O blocking
@@ -39,6 +43,38 @@ void ExchangeOrchestrator::on_client_connect(std::shared_ptr<TCPSession> session
 
 void ExchangeOrchestrator::on_client_disconnect(std::shared_ptr<TCPSession> session) {
     gateway_->on_client_disconnect(session);
+}
+
+void ExchangeOrchestrator::on_order_accepted(const Order& order) {
+    if(!currentSession_) {
+        return; // return if no session is set (like in console mode)
+    }
+    // create string_views for ExecType and OrdStatus
+    std::string_view execTypeView(&FIX::ExecTypes::New, 1);
+
+    size_t bytes = gateway_->get_writer().writeExecutionReport(
+        order, execTypeView, currentSession_->get_buffer_ptr(), currentSession_->get_buffer_size()
+    );
+
+    if (bytes > 0) {
+        currentSession_->write(std::string(currentSession_->get_buffer_ptr(), bytes));
+    }
+}
+
+void ExchangeOrchestrator::on_order_executed(const Order& order, int price, int quantity) {
+    if(!currentSession_) {
+        return; // return if no session is set (like in console mode)
+    }
+
+    std::string_view execTypeView(&FIX::ExecTypes::Trade, 1);
+
+    size_t bytes = gateway_->get_writer().writeExecutionReport(
+        order, execTypeView, currentSession_->get_buffer_ptr(), currentSession_->get_buffer_size()
+    );
+
+    if (bytes > 0) {
+        currentSession_->write(std::string(currentSession_->get_buffer_ptr(), bytes));
+    }
 }
 
 void ExchangeOrchestrator::outputOrderBookState() const {
