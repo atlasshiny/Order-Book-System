@@ -16,7 +16,6 @@ public:
     void placePostOnlyOrder(Order& order);
     void matchOrders();
     void cancelOrder(int orderId);
-    void onNewOrder(const Order& order); // Callback for new orders
 
     // Market data retrieval
     void level1Data() const;
