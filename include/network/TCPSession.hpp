@@ -11,6 +11,10 @@ public:
     void write(const std::string& data);
     void close();
 
+    // get methods for the buffer pointer and size
+    char* get_buffer_ptr();
+    size_t get_buffer_size();
+
 private:
     void do_read();
     void do_write();

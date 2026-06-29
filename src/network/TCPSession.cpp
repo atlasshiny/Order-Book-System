@@ -73,3 +73,11 @@ void TCPSession::do_write() {
         });
 
 }
+
+char* TCPSession::get_buffer_ptr() {
+    return buffer_.data();
+}
+
+size_t TCPSession::get_buffer_size() {
+    return buffer_.size();
+}
