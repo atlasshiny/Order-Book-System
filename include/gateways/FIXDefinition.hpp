@@ -44,6 +44,7 @@ namespace FIX {
         constexpr char PendingNew = 'A';
         constexpr char Calculated = 'B';
         constexpr char Expired = 'C';
+        constexpr char Trade = 'F';
         // Add other execution types as needed
     }
 
@@ -61,6 +62,7 @@ namespace FIX {
         constexpr char PendingNew = 'A';
         constexpr char Calculated = 'B';
         constexpr char Expired = 'C';
+        constexpr char Trade = 'F';
         // Add other order statuses as needed
     }
 }
