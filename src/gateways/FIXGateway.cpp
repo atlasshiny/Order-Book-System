@@ -73,3 +73,7 @@ void FIXGateway::on_client_connect(std::shared_ptr<TCPSession> session) {
 void FIXGateway::on_client_disconnect(std::shared_ptr<TCPSession> session) {
     std::cout << "A client disconnected " << std::endl;
 }
+
+FIXWriter& FIXGateway::get_writer() {
+    return fixWriter_;
+}
