@@ -21,6 +21,7 @@ namespace FIX {
         constexpr int TIMESTAMP = 60;
         constexpr int ExecType = 150;
         constexpr int OrdStatus = 39;
+        constexpr int LeavesQty = 151;
         // Add other message types as needed
     }
 
