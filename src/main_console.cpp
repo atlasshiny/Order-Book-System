@@ -59,7 +59,7 @@ int main() {
         ).count();
 
         // Create our local order template representing a client message
-        Order consoleOrder{orderType, direction, price, quantity, current_time, clientID};
+        Order consoleOrder{orderType, direction, price, quantity, quantity, current_time, clientID};
 
         // STEP 1: FIX WRITER SERIALIZATION (Client Sending Order)
         size_t bytesWritten = fixWriter.write(consoleOrder, wireBuffer, sizeof(wireBuffer));
