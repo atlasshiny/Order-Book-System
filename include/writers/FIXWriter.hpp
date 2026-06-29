@@ -1,6 +1,5 @@
 #pragma once
 #include "IWriter.hpp"
-#include <iostream>
 
 class FIXWriter : public IWriter {
     public:

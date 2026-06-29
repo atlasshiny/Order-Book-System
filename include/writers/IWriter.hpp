@@ -1,5 +1,6 @@
 #pragma once
 #include "orderbook/Order.hpp"
+#include <iostream>
 #include <cstddef>
 
 class IWriter {
