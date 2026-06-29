@@ -80,7 +80,7 @@ size_t FIXWriter::write(const Order& order, char* buffer, size_t bufferSize) {
     return (ptr - buffer); // Total bytes written to buffer
 }
 
-size_t FIXWriter::writeExecutionReport(const Order& order, std::string_view execType, char* buffer, size_t bufferSize) {
+size_t FIXWriter::writeExecutionReport(const Order& order, std::string_view execType, std::string_view ordStatus, char* buffer, size_t bufferSize) {
     char* ptr = buffer;
     char* end = buffer + bufferSize;
     char* bodyStart = nullptr;
@@ -120,8 +120,8 @@ size_t FIXWriter::writeExecutionReport(const Order& order, std::string_view exec
     // Exchange Core Execution Lifecycle Hooks (Mandatory)
     appendNumericField(FIX::Tags::OrderID, order.id);                                     // OrderID (Engine sequence)
     appendStringField(FIX::Tags::ExecType, execType);                                     // ExecType (e.g., "0"=New, "F"=Fill)
-    appendNumericField(FIX::Tags::OrdStatus, static_cast<int>(order.status));             // OrdStatus (e.g., "0"=New, "2"=Filled)
-
+    appendStringField(FIX::Tags::OrdStatus, ordStatus);                                   // OrdStatus (e.g., "0"=New, "2"=Filled)
+    
     // Order fields
     appendNumericField(FIX::Tags::PRICE, order.price);
     appendNumericField(FIX::Tags::QUANTITY, order.quantity);
