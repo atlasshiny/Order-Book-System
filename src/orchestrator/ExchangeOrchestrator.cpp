@@ -5,6 +5,7 @@
 void ExchangeOrchestrator::processOrder(std::shared_ptr<TCPSession> session, Order& order) {
     // set the current session for the incoming order
     currentSession_ = session;
+    orderBook_.set_orchestrator(this); // set the orchestrator for callback hooks
     
     // Run high-speed concrete pre-trade risk checks
     if (!riskManager_.checkOrder(order)) {
@@ -25,6 +26,10 @@ void ExchangeOrchestrator::processOrder(std::shared_ptr<TCPSession> session, Ord
 
     // Output the current state of the order book for debugging purposes
     outputOrderBookState(); // I/O blocking
+
+    // Clear out the pointers when this single transaction loop finishes
+    orderBook_.remove_orchestrator();
+    currentSession_ = nullptr;
 };
 
 std::optional<Order> ExchangeOrchestrator::on_data_received(std::shared_ptr<TCPSession> session, std::string_view raw_data) {
