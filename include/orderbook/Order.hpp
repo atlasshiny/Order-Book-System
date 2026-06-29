@@ -9,11 +9,12 @@ enum class OrderDirection {
     SELL
 };
 
-// order status (OPEN, PARTIALLY_FILLED, FILLED, CANCELLED)
+// order status (NEW, PARTIALLY_FILLED, FILLED, DONE_FOR_DAY, CANCELLED)
 enum class OrderStatus {
-    OPEN,
+    NEW,
     PARTIALLY_FILLED,
     FILLED,
+    DONE_FOR_DAY, // Added to allign with FIX OrdStatus values
     CANCELLED
 };
 
@@ -35,6 +36,6 @@ struct Order {
     int quantity;
     uint64_t timestamp; // Time in nanoseconds since order creation, used for time priority in matching
     int clientID;
-    OrderStatus status = OrderStatus::OPEN; // Default status is OPEN
+    OrderStatus status = OrderStatus::NEW; // Default status is NEW (this maps to FIX OrdStatus)
     int id; // Unique order ID assigned by the matching engine
 };
