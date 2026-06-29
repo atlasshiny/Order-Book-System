@@ -3,31 +3,35 @@
 #include <map>
 #include <iomanip>
 #include "orderbook/OrderBook.hpp"
-
+#include "orchestrator/ExchangeOrchestrator.hpp"
 
 void OrderBook::matchAgainstBook(Order& incomingOrder, std::deque<Order>& oppositeBook) {
-    // 1. Ensure the book is sorted by price/time priority before matching
-    // (You can either call your sort logic here or ensure it's sorted before calling this)
+    // Ensure the book is sorted by price/time priority before matching
     
     while (!oppositeBook.empty() && incomingOrder.quantity > 0) {
         Order& restingOrder = oppositeBook.front();
 
-        // 2. Determine price limit constraints
+        // Determine price limit constraints
         // If it's a BUY order, it can only match if the resting SELL price <= incoming BUY price
         // If it's a SELL order, it can only match if the resting BUY price >= incoming SELL price
         if (incomingOrder.direction == OrderDirection::BUY && incomingOrder.price < restingOrder.price) break;
         if (incomingOrder.direction == OrderDirection::SELL && incomingOrder.price > restingOrder.price) break;
 
-        // 3. Match quantities
+        // Match quantities
         int tradeQuantity = std::min(incomingOrder.quantity, restingOrder.quantity);
         
-        // 4. Update quantities
+        // Update quantities
         incomingOrder.quantity -= tradeQuantity;
         restingOrder.quantity -= tradeQuantity;
 
         std::cout << "Trade Executed: " << tradeQuantity << " shares at $" << restingOrder.price << std::endl;
 
-        // 5. Cleanup filled orders
+        // callback hook; Notify execution for BOTH sides of the aggressive sweep
+        if (orchestrator_) {
+            orchestrator_->on_order_executed(restingOrder, restingOrder.price, tradeQuantity);
+            orchestrator_->on_order_executed(incomingOrder, restingOrder.price, tradeQuantity);
+        }
+
         if (restingOrder.quantity <= 0) {
             restingOrder.status = OrderStatus::FILLED;
             oppositeBook.pop_front();
@@ -44,6 +48,11 @@ void OrderBook::placeLimitOrder(Order& order) {
     } else if (order.direction == OrderDirection::SELL) {
         // Add limit sell order to ask side
         askOrders.push_back(order);
+    }
+
+    // callback hook
+    if (orchestrator_) {
+        orchestrator_->on_order_accepted(order);
     }
 }
 
@@ -81,6 +90,11 @@ void OrderBook::placeMarketOrder(Order& order) {
                       << " expired unfilled for " << order.quantity 
                       << " shares due to total lack of market liquidity." << std::endl;
         }
+    }
+
+    // callback hook
+    if (orchestrator_) {
+        orchestrator_->on_order_accepted(order);
     }
 }
 
@@ -130,6 +144,11 @@ void OrderBook::placeImmediateOrCancelOrder(Order& order) {
                  << " cancelled immediately as it had zero quantity." << std::endl;
         }
     }
+
+    // callback hook
+    if (orchestrator_) {
+        orchestrator_->on_order_accepted(order);
+    }
 }
 
 void OrderBook::placePostOnlyOrder(Order& order) {
@@ -155,6 +174,11 @@ void OrderBook::placePostOnlyOrder(Order& order) {
         }
         // Add limit sell order to ask side
         askOrders.push_back(order);
+    }
+
+    // callback hook
+    if (orchestrator_) {
+        orchestrator_->on_order_accepted(order);
     }
 }
 
@@ -191,6 +215,12 @@ void OrderBook::matchOrders() {
         // deduct executed quantity from both orders
         buy.quantity -= tradeQuantity;
         sell.quantity -= tradeQuantity;
+
+        // callback hook; notify execution for BOTH resting orders crossing
+        if (orchestrator_) {
+            orchestrator_->on_order_executed(buy, tradePrice, tradeQuantity);
+            orchestrator_->on_order_executed(sell, tradePrice, tradeQuantity);
+        }
 
         // remove fully filled orders using pop_front() for deques
         if (buy.quantity > 0) {
@@ -295,4 +325,12 @@ void OrderBook::level2Data() const {
         std::cout << std::endl;
     }
     std::cout << "========================================================" << std::endl;
+}
+
+void OrderBook::set_orchestrator(ExchangeOrchestrator* orchestrator) {
+    orchestrator_ = orchestrator;
+}
+
+void OrderBook::remove_orchestrator() {
+    orchestrator_ = nullptr;
 }
