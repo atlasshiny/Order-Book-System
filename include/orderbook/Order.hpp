@@ -29,11 +29,12 @@ enum class OrderType {
 
 // the order itself, a structure holding all relevant information
 // and the main object that the program will interact with.
-struct Order {
+struct Order { 
     OrderType type;
     OrderDirection direction;
     int price;
-    int quantity;
+    int originalQuantity; // The original quantity of the order when it was placed
+    int quantity; // The remaining quantity of the order that is yet to be filled
     uint64_t timestamp; // Time in nanoseconds since order creation, used for time priority in matching
     int clientID;
     OrderStatus status = OrderStatus::NEW; // Default status is NEW (this maps to FIX OrdStatus)
