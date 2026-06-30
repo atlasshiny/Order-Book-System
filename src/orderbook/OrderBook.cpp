@@ -40,8 +40,6 @@ void OrderBook::matchAgainstBook(Order& incomingOrder, std::deque<Order>& opposi
 }
 
 void OrderBook::placeLimitOrder(Order& order) {
-    order.id = nextOrderId++; // Assign a unique ID to the order
-
     if (order.direction == OrderDirection::BUY) {
         // Add limit buy order to bid side
         bidOrders.push_back(order);
@@ -53,8 +51,6 @@ void OrderBook::placeLimitOrder(Order& order) {
 }
 
 void OrderBook::placeMarketOrder(Order& order) {
-    order.id = nextOrderId++; // Assign a unique ID to the order
-
     if (order.direction == OrderDirection::BUY) {
         // ensure best asks are sorted first (lowest price) for market orders
         sort(askOrders.begin(), askOrders.end(), [](const Order& a, const Order& b) {
@@ -94,8 +90,6 @@ void OrderBook::placeImmediateOrCancelOrder(Order& order) {
     // Implementation for Immediate-Or-Cancel (IOC) orders
     // This function will attempt to fill the order immediately and cancel any unfilled portion
     // Similar logic to placeMarketOrder but with cancellation of remaining quantity
-
-    order.id = nextOrderId++; // Assign a unique ID to the order
 
     if (order.direction == OrderDirection::BUY) {
         if (order.quantity > 0) {
@@ -143,8 +137,6 @@ void OrderBook::placePostOnlyOrder(Order& order) {
     // Implementation for Post-Only orders
     // This function will only add the order to the book if it does not immediately match
     // If it would match, it should be rejected or cancelled
-
-    order.id = nextOrderId++; // Assign a unique ID to the order
 
     if (order.direction == OrderDirection::BUY) {
         if (!askOrders.empty() && order.price >= askOrders.front().price) {
@@ -317,4 +309,8 @@ void OrderBook::set_orchestrator(ExchangeOrchestrator* orchestrator) {
 
 void OrderBook::remove_orchestrator() {
     orchestrator_ = nullptr;
+}
+
+int OrderBook::getNextOrderId() {
+    return nextOrderId++;
 }

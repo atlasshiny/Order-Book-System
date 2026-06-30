@@ -13,6 +13,8 @@ void ExchangeOrchestrator::processOrder(std::shared_ptr<TCPSession> session, Ord
         return; 
     }
     
+    order.id = orderBook_.getNextOrderId(); // Assign a unique ID to the order
+
     order.originalQuantity = order.quantity; // Store the original quantity for reference
 
     on_order_accepted(order); // Notify the client that the order has been accepted
