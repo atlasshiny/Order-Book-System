@@ -63,7 +63,7 @@ void ExchangeOrchestrator::on_order_accepted(const Order& order) {
     std::string_view ordStatusView(&FIX::OrdStatuses::New, 1);
 
     size_t bytes = gateway_->get_writer().writeExecutionReport(
-        order, execTypeView, ordStatusView, currentSession_->get_buffer_ptr(), currentSession_->get_buffer_size()
+        order, 0, execTypeView, ordStatusView, currentSession_->get_buffer_ptr(), currentSession_->get_buffer_size()
     );
 
     if (bytes > 0) {
@@ -88,7 +88,7 @@ void ExchangeOrchestrator::on_order_executed(const Order& order, int price, int 
     std::string_view ordStatusView(&currentStatus, 1);
 
     size_t bytes = gateway_->get_writer().writeExecutionReport(
-        order, execTypeView, ordStatusView, currentSession_->get_buffer_ptr(), currentSession_->get_buffer_size()
+        order, quantity, execTypeView, ordStatusView, currentSession_->get_buffer_ptr(), currentSession_->get_buffer_size()
     );
 
     if (bytes > 0) {
