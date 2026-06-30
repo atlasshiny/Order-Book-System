@@ -22,6 +22,7 @@ namespace FIX {
         constexpr int ExecType = 150;
         constexpr int OrdStatus = 39;
         constexpr int LeavesQty = 151;
+        constexpr int LastShares = 32;
         // Add other message types as needed
     }
 
