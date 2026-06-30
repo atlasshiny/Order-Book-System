@@ -3,7 +3,7 @@
 #include <charconv>
 
 std::optional<Order> FIXParser::parse(std::string_view rawData) {
-    Order order;
+    Order order{};
     size_t pos = 0;
 
     // Complete basic message checks
