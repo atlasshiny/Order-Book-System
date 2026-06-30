@@ -180,9 +180,17 @@ void OrderBook::matchOrders() {
 
         // determine trade quantity (fill as much as possible)
         int tradeQuantity = std::min(buy.quantity, sell.quantity);
+        
+        // determine trade price (using the resting order price)
+        int tradePrice;
 
-        // determine trade price (use midpoint)
-        int tradePrice = (buy.price + sell.price) / 2;
+        if (buy.timestamp > sell.timestamp) {
+            // If the buy order is newer, use the sell price
+            tradePrice = sell.price;
+        } else {
+            // If the sell order is newer, use the buy price
+            tradePrice = buy.price;
+        }
 
         std::cout << "Matched BUY id " << buy.id
              << " (price " << buy.price << ", qty " << tradeQuantity << ") with SELL id " << sell.id
