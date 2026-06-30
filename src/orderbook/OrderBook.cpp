@@ -50,10 +50,6 @@ void OrderBook::placeLimitOrder(Order& order) {
         askOrders.push_back(order);
     }
 
-    // callback hook
-    if (orchestrator_) {
-        orchestrator_->on_order_accepted(order);
-    }
 }
 
 void OrderBook::placeMarketOrder(Order& order) {
@@ -92,10 +88,6 @@ void OrderBook::placeMarketOrder(Order& order) {
         }
     }
 
-    // callback hook
-    if (orchestrator_) {
-        orchestrator_->on_order_accepted(order);
-    }
 }
 
 void OrderBook::placeImmediateOrCancelOrder(Order& order) {
@@ -145,10 +137,6 @@ void OrderBook::placeImmediateOrCancelOrder(Order& order) {
         }
     }
 
-    // callback hook
-    if (orchestrator_) {
-        orchestrator_->on_order_accepted(order);
-    }
 }
 
 void OrderBook::placePostOnlyOrder(Order& order) {
@@ -176,10 +164,6 @@ void OrderBook::placePostOnlyOrder(Order& order) {
         askOrders.push_back(order);
     }
 
-    // callback hook
-    if (orchestrator_) {
-        orchestrator_->on_order_accepted(order);
-    }
 }
 
 void OrderBook::matchOrders() {
