@@ -9,7 +9,7 @@ TCPServer::TCPServer(unsigned short port, std::shared_ptr<ExchangeOrchestrator> 
 
 void TCPServer::run() {
     std::cout << "[Server] : Server running on port " << acceptor_.local_endpoint().port() << std::endl;
-    
+
     io_context_.run();
 }
 
@@ -22,6 +22,8 @@ void TCPServer::doAccept() {
                 
                 // Instantiate a standalone session container to manage this client's lifetime
                 std::make_shared<TCPSession>(std::move(socket), orchestrator_)->start();
+            } else {
+                std::cerr << "[Server] Error accepting connection: " << ec.message() << std::endl;
             }
             
             // Keep the loop primed for additional clients
