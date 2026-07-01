@@ -7,12 +7,23 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
+find_package(Threads REQUIRED)
 
 FetchContent_Declare(
     asio
     URL https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-1-38-0.tar.gz
 )
+
 FetchContent_MakeAvailable(asio)
+
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/heads/main.zip
+)
+
+FetchContent_MakeAvailable(googletest)
+
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 add_library(asio_target INTERFACE)
 target_include_directories(asio_target INTERFACE 
@@ -28,8 +39,9 @@ add_library(EngineCore STATIC
     src/writers/FIXWriter.cpp
     src/risk/RiskManager.cpp
 )
-target_include_directories(EngineCore PRIVATE include)
+target_include_directories(EngineCore PUBLIC include)
 
+# Console
 add_executable(OrderBookConsole 
     src/main_console.cpp
     src/network/TCPServer.cpp
@@ -38,12 +50,14 @@ add_executable(OrderBookConsole
     src/orchestrator/ExchangeOrchestrator.cpp
 )
 target_include_directories(OrderBookConsole PRIVATE include)
+
 target_link_libraries(OrderBookConsole PRIVATE
     EngineCore
     asio_target
     Threads::Threads
 )
 
+# Server
 add_executable(OrderBookServer 
     src/main_server.cpp
     src/network/TCPServer.cpp
@@ -54,10 +68,23 @@ add_executable(OrderBookServer
 
 target_include_directories(OrderBookServer PRIVATE include)
 
-find_package(Threads REQUIRED)
-
 target_link_libraries(OrderBookServer PRIVATE 
     EngineCore
     asio_target 
     Threads::Threads
 )
+
+# Tests (add .cpp files when tests are built)
+# add_executable(OrderBookTests
+
+# )
+
+# target_link_libraries(OrderBookTests PRIVATE
+#     EngineCore 
+#     asio_target 
+#     GTest::gtest_main  
+#     Threads::Threads   
+# )
+
+# include(GoogleTest)
+# gtest_discover_tests(OrderBookTests)
