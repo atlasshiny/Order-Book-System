@@ -8,6 +8,8 @@ TCPServer::TCPServer(unsigned short port, std::shared_ptr<ExchangeOrchestrator> 
 }
 
 void TCPServer::run() {
+    std::cout << "[Server] : Server running on port " << acceptor_.local_endpoint().port() << std::endl;
+    
     io_context_.run();
 }
 
