@@ -4,11 +4,12 @@
 #include "gateways/IGateway.hpp"
 #include "orderbook/Order.hpp" 
 #include "gateways/FIXDefinition.hpp"
+#include "orderbook/IExecutionListener.hpp"
 #include <memory>
 
 class TCPSession; // Forward declaration
 
-class ExchangeOrchestrator {
+class ExchangeOrchestrator : public IExecutionListener {
 public:
     // Constructor accepts which protocol gateway we want to use
     ExchangeOrchestrator(std::unique_ptr<IGateway> protocolGateway)
