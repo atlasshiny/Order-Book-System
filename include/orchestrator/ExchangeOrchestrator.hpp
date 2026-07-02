@@ -22,7 +22,7 @@ public:
     void on_client_connect(std::shared_ptr<TCPSession> session);
     void on_client_disconnect(std::shared_ptr<TCPSession> session);
     void on_order_accepted(const Order& order);
-    void on_order_executed(const Order& order, int price, int quantity);
+    void on_order_executed(const Order& order, int price, int quantity) override;
 
     // Output the current state of the order book in console (I/O blocking)
     void outputOrderBookState() const;
