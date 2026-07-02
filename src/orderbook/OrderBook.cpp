@@ -3,7 +3,7 @@
 #include <map>
 #include <iomanip>
 #include "orderbook/OrderBook.hpp"
-#include "orchestrator/ExchangeOrchestrator.hpp"
+#include "orderbook/IExecutionListener.hpp"
 
 void OrderBook::matchAgainstBook(Order& incomingOrder, std::deque<Order>& oppositeBook) {
     // Ensure the book is sorted by price/time priority before matching
@@ -27,9 +27,9 @@ void OrderBook::matchAgainstBook(Order& incomingOrder, std::deque<Order>& opposi
         std::cout << "Trade Executed: " << tradeQuantity << " shares at $" << restingOrder.price << std::endl;
 
         // callback hook; Notify execution for BOTH sides of the aggressive sweep
-        if (orchestrator_) {
-            orchestrator_->on_order_executed(restingOrder, restingOrder.price, tradeQuantity);
-            orchestrator_->on_order_executed(incomingOrder, restingOrder.price, tradeQuantity);
+        if (listener_) {
+            listener_->on_order_executed(restingOrder, restingOrder.price, tradeQuantity);
+            listener_->on_order_executed(incomingOrder, restingOrder.price, tradeQuantity);
         }
 
         if (restingOrder.quantity <= 0) {
@@ -201,9 +201,9 @@ void OrderBook::matchOrders() {
         sell.quantity -= tradeQuantity;
 
         // callback hook; notify execution for BOTH resting orders crossing
-        if (orchestrator_) {
-            orchestrator_->on_order_executed(buy, tradePrice, tradeQuantity);
-            orchestrator_->on_order_executed(sell, tradePrice, tradeQuantity);
+        if (listener_) {
+            listener_->on_order_executed(buy, tradePrice, tradeQuantity);
+            listener_->on_order_executed(sell, tradePrice, tradeQuantity);
         }
 
         // remove fully filled orders using pop_front() for deques
@@ -311,12 +311,12 @@ void OrderBook::level2Data() const {
     std::cout << "========================================================" << std::endl;
 }
 
-void OrderBook::set_orchestrator(ExchangeOrchestrator* orchestrator) {
-    orchestrator_ = orchestrator;
+void OrderBook::set_listener(IExecutionListener* listener) {
+    listener_ = listener;
 }
 
-void OrderBook::remove_orchestrator() {
-    orchestrator_ = nullptr;
+void OrderBook::remove_listener() {
+    listener_ = nullptr;
 }
 
 int OrderBook::getNextOrderId() {

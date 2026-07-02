@@ -2,7 +2,7 @@
 #include <deque>
 #include "Order.hpp"
 
-class ExchangeOrchestrator; // Forward declaration
+class IExecutionListener; // Forward declaration
 
 class OrderBook {
 private:
@@ -11,8 +11,8 @@ private:
     int nextOrderId = 1;
     void matchAgainstBook(Order& incomingOrder, std::deque<Order>& oppositeBook);
 
-    // Orchestrator pointer for callbacks
-    ExchangeOrchestrator* orchestrator_ = nullptr;
+    // Execution listener pointer for callbacks
+    IExecutionListener* listener_ = nullptr;
 
 public:
     // Core functionalities
@@ -29,6 +29,6 @@ public:
     void level2Data() const;
 
     // Orchestrator management
-    void set_orchestrator(ExchangeOrchestrator* orchestrator);
-    void remove_orchestrator();
+    void set_listener(IExecutionListener* listener);
+    void remove_listener();
 };
