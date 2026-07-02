@@ -75,16 +75,18 @@ target_link_libraries(OrderBookServer PRIVATE
 )
 
 # Tests (add .cpp files when tests are built)
-# add_executable(OrderBookTests
+enable_testing()
 
-# )
+add_executable(OrderBookTests
+    tests/orderbook_tests.cpp
+)
 
-# target_link_libraries(OrderBookTests PRIVATE
-#     EngineCore 
-#     asio_target 
-#     GTest::gtest_main  
-#     Threads::Threads   
-# )
+target_link_libraries(OrderBookTests PRIVATE
+    EngineCore 
+    asio_target 
+    GTest::gtest_main  
+    Threads::Threads   
+)
 
-# include(GoogleTest)
-# gtest_discover_tests(OrderBookTests)
+include(GoogleTest)
+gtest_discover_tests(OrderBookTests)
