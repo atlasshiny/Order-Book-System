@@ -99,10 +99,10 @@ size_t FIXWriter::writeExecutionReport(const Order& order, int lastShares, std::
     auto appendStringField = [&](int tag, std::string_view value) {
         auto [p1, ec1] = std::to_chars(ptr, end, tag);
         *p1++ = '=';
-        ptr = p1; 
-        std::memcpy(ptr, value.data(), value.size());
-        ptr += value.size();
-        *ptr++ = '\x01';
+        std::memcpy(p1, value.data(), value.size());
+        p1 += value.size();
+        *p1++ = '\x01';
+        ptr = p1; // Explicitly update the global tracking pointer to the absolute end
     };
 
     // Write BeginString (Tag 8)
