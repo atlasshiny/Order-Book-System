@@ -30,3 +30,11 @@ void TCPServer::doAccept() {
             doAccept();
         });
 }
+
+int TCPServer::getPort() const {
+    return acceptor_.local_endpoint().port();
+}
+
+std::shared_ptr<ExchangeOrchestrator> TCPServer::getOrchestrator() const {
+    return orchestrator_;
+}

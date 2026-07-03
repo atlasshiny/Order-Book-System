@@ -11,6 +11,9 @@ class TCPServer {
 
         void run();
 
+        int getPort() const;
+        std::shared_ptr<ExchangeOrchestrator> getOrchestrator() const;
+
     private:
         void doAccept();
 
