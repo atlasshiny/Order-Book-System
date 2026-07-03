@@ -80,6 +80,7 @@ enable_testing()
 add_executable(OrderBookTests
     tests/orderbook_tests.cpp
     tests/fix_protocol_tests.cpp
+    tests/risk_check_tests.cpp
 )
 
 target_link_libraries(OrderBookTests PRIVATE
