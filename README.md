@@ -50,6 +50,9 @@ tcp_test.py        # Simple Python TCP client for end-to-end FIX testing
 5. `OrderBook` assigns an ID, places/matches, and triggers execution callbacks.
 6. `FIXWriter` emits execution reports back to the active session.
 
+### Architecture Diagram
+![Project Architecture](/diagrams/architecture.svg)
+
 In console mode, the same orchestration path is exercised without a network session.
 
 ## Prerequisites
