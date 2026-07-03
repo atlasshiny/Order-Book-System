@@ -1,5 +1,10 @@
 # Order Book Simulator
 
+![C++](https://img.shields.io/badge/C%2B%2B-20-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
+![Asio](https://img.shields.io/badge/Network-Asio%20Standalone-red?style=for-the-badge&logo=cplusplus&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+
 A C++20 limit order book simulator with:
 - A matching engine (`OrderBook`)
 - Pre-trade risk checks (`RiskManager`)
