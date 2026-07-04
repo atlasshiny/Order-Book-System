@@ -43,7 +43,7 @@ tests/
 	orderbook_tests.cpp
 	fix_protocol_tests.cpp
 	risk_check_tests.cpp
-tcp_test.py        # Simple Python TCP client for end-to-end FIX testing
+tcp_test.py         # Simple Python TCP client for end-to-end FIX testing
 ```
 
 ## Architecture Overview
