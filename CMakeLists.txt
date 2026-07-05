@@ -11,14 +11,13 @@ find_package(Threads REQUIRED)
 
 FetchContent_Declare(
     asio
-    GIT_REPOSITORY https://github.com/chriskohlhoff/asio_SOURCE_DIR
-    GIT_TAG 1-38-0
+    URL https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-1-38-0.tar.gz
 )
 
 FetchContent_Declare(
     googletest
     GIT_REPOSITORY https://github.com/google/googletest
-    GIT_TAG 1.17.0
+    GIT_TAG v1.17.0
 )
 
 FetchContent_MakeAvailable(
