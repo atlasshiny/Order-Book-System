@@ -11,17 +11,20 @@ find_package(Threads REQUIRED)
 
 FetchContent_Declare(
     asio
-    URL https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-1-38-0.tar.gz
+    GIT_REPOSITORY https://github.com/chriskohlhoff/asio_SOURCE_DIR
+    GIT_TAG 1-38-0
 )
-
-FetchContent_MakeAvailable(asio)
 
 FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/heads/main.zip
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest
+    GIT_TAG 1.17.0
 )
 
-FetchContent_MakeAvailable(googletest)
+FetchContent_MakeAvailable(
+    asio
+    googletest
+)
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
