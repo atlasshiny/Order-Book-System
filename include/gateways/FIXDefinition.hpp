@@ -1,5 +1,4 @@
 #pragma once
-#include <string_view>
 
 namespace FIX {
     // Standard FIX tags for order fields
